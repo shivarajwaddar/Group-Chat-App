@@ -3,7 +3,7 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Full Screen Chat UI</title>
+    <title>ChatApp - Full Screen</title>
     <link rel="stylesheet" href="chat.css" />
   </head>
   <body>
@@ -22,18 +22,9 @@
             <div class="profile-circle"></div>
             <div class="chat-meta">
               <div class="chat-name">
-                <strong>Project Lead</strong> <small>14:45</small>
+                <strong>Global Group</strong> <small>Online</small>
               </div>
-              <p>The code is ready.</p>
-            </div>
-          </div>
-          <div class="chat-item">
-            <div class="profile-circle"></div>
-            <div class="chat-meta">
-              <div class="chat-name">
-                <strong>Design Team</strong> <small>Yesterday</small>
-              </div>
-              <p>Check the new colors.</p>
+              <p>Public Chat Room</p>
             </div>
           </div>
         </div>
@@ -44,30 +35,26 @@
           <div class="current-user">
             <div class="profile-circle small"></div>
             <div>
-              <strong>Project Lead</strong>
+              <strong>Global Group</strong>
               <p class="status">online</p>
             </div>
           </div>
           <span class="menu-label">Search</span>
         </header>
 
-        <section class="message-container">
-          <div class="msg received">
-            This is the full-screen layout with WhatsApp colors.
-            <span class="time">14:40</span>
-          </div>
-          <div class="msg sent">
-            The sidebar and headers are a different color now.
-            <span class="time">14:45</span>
-          </div>
-        </section>
+        <section class="message-container" id="chatBox"></section>
 
         <footer class="input-container">
           <span class="action-text">Attach</span>
           <input type="text" placeholder="Type a message" id="msgInput" />
-          <span class="action-text send">Send</span>
+          <span class="action-text send" onclick="sendMessage(event)"
+            >Send</span
+          >
         </footer>
       </main>
     </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
+    <script src="chat.js"></script>
   </body>
 </html>
