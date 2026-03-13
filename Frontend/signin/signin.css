@@ -1,0 +1,162 @@
+/* 1. Global Reset & Layout Lock */
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+/* Force the body to be exactly the height of the device screen */
+html,
+body {
+  height: 100%;
+  width: 100%;
+  overflow: hidden; /* Stops page-level scrolling */
+}
+
+body {
+  font-family: "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+  background-color: #f4f7f6; /* Clean light gray background */
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding: 10px;
+}
+
+/* 2. Responsive Card (No-Scroll Strategy) */
+.form-card {
+  background-color: #ffffff;
+  width: 100%;
+  max-width: 400px;
+  max-height: 98vh; /* Never taller than the screen */
+  padding: 25px;
+  border-radius: 12px;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.05);
+  display: flex;
+  flex-direction: column;
+}
+
+/* 3. Header - Flex Shrink 0 keeps it from squishing */
+.form-header {
+  text-align: center;
+  margin-bottom: 20px;
+  flex-shrink: 0;
+}
+
+.form-header h1 {
+  color: #2563eb; /* Professional Royal Blue */
+  font-size: 26px;
+  margin-bottom: 5px;
+}
+
+.form-header p {
+  color: #6b7280;
+  font-size: 14px;
+  margin-bottom: 10px;
+}
+
+/* 4. Form and Inputs */
+form {
+  display: flex;
+  flex-direction: column;
+  overflow: hidden; /* Keeps inputs neat */
+}
+
+.input-group {
+  margin-bottom: 15px;
+  display: flex;
+  flex-direction: column;
+}
+
+label {
+  font-size: 12px;
+  font-weight: 700;
+  color: #384bc3;
+  margin: 4px;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+input {
+  border: none;
+  border-bottom: 2px solid #e5e7eb;
+  padding: 10px 8px;
+  font-size: 16px;
+  transition: border-color 0.3s ease;
+  outline: none;
+  background-color: transparent;
+  margin-bottom: 6px;
+}
+
+input:focus {
+  border-bottom: 2px solid #1b4c54;
+}
+
+/* 5. Action Button */
+.signup-btn {
+  width: 100%;
+  background-color: #2563eb;
+  color: white;
+  border: none;
+  padding: 14px;
+  border-radius: 8px;
+  font-size: 16px;
+  font-weight: bold;
+  cursor: pointer;
+  margin-top: 10px;
+  flex-shrink: 0;
+  transition:
+    background-color 0.2s,
+    transform 0.1s;
+}
+
+.signup-btn:hover {
+  background-color: #1d4ed8;
+}
+
+.signup-btn:active {
+  transform: scale(0.98);
+}
+
+/* 6. Footer */
+.form-footer {
+  margin-top: 20px;
+  text-align: center;
+  font-size: 14px;
+  color: #6b7280;
+  flex-shrink: 0;
+}
+
+.form-footer a {
+  color: #2563eb;
+  text-decoration: none;
+  font-weight: bold;
+}
+
+/* ---------------------------------------------------
+   7. RESPONSIVE QUERIES (Small Screens & Heights)
+--------------------------------------------------- */
+
+/* Adjusts when screen height is small (like mobile landscape) */
+@media screen and (max-height: 600px) {
+  .form-card {
+    padding: 15px;
+  }
+  .form-header {
+    margin-bottom: 10px;
+  }
+  .form-header h1 {
+    font-size: 20px;
+  }
+  .input-group {
+    margin-bottom: 8px;
+  }
+  .input-group input {
+    padding: 6px 4px;
+  }
+}
+
+@media (min-width: 768px) {
+  .form-card {
+    padding: 35px;
+  }
+}

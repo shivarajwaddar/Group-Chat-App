@@ -1,0 +1,54 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Group chat Login</title>
+    <link rel="stylesheet" href="signin.css" />
+  </head>
+  <body>
+    <div class="form-card">
+      <header class="form-header">
+        <h1>Welcome Back</h1>
+        <p>Login to Group chat app</p>
+      </header>
+
+      <form>
+        <div class="input-group">
+          <label for="email">Email Address</label>
+          <input
+            id="email"
+            name="email"
+            type="email"
+            placeholder="email@example.com"
+            required
+          />
+        </div>
+
+        <div class="input-group">
+          <label for="password">Password</label>
+          <input
+            id="password"
+            name="password"
+            type="password"
+            placeholder="••••••••"
+            required
+          />
+        </div>
+
+        <button type="submit" class="signup-btn">Sign In</button>
+      </form>
+
+      <footer class="form-footer">
+        <p>
+          Don't have an account? <a href="../Signup/signup.html">Sign up</a>
+        </p>
+        <div class="forgot-password-link">
+          <a href="../ForgotPassword/forgotpassword.html">Forgot Password?</a>
+        </div>
+      </footer>
+    </div>
+    <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
+    <script src="signin.js"></script>
+  </body>
+</html>

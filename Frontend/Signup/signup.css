@@ -1,0 +1,153 @@
+/* 1. Global Reset & Layout Lock */
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+html,
+body {
+  height: 100%;
+  width: 100%;
+  overflow: hidden; /* Prevents the whole page from scrolling */
+}
+
+body {
+  font-family: "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+  background-color: #f4f7f6;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding: 10px;
+}
+
+/* 2. Form Card */
+.form-card {
+  background-color: #ffffff;
+  width: 100%;
+  max-width: 400px;
+  max-height: 96vh; /* Leave 4% breathing room for mobile browser bars */
+  padding: 24px;
+  border-radius: 12px;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.05);
+  display: flex;
+  flex-direction: column;
+}
+
+/* 3. Header - Locked at top */
+.form-header {
+  text-align: center;
+  margin-bottom: 1.5rem;
+  flex-shrink: 0;
+}
+
+.form-header h1 {
+  color: #2563eb;
+  font-size: 26px;
+  margin-bottom: 4px;
+}
+
+.form-header p {
+  color: #6b7280;
+  font-size: 14px;
+}
+
+/* 4. Form and Inputs */
+form {
+  display: flex;
+  flex-direction: column;
+  flex-grow: 1; /* Take up remaining space */
+  overflow-y: auto; /* Safety: scroll only inside the form if screen is tiny */
+  overflow-x: hidden;
+  padding: 2px;
+}
+
+.input-group {
+  margin-bottom: 15px;
+  display: flex;
+  flex-direction: column;
+  flex-shrink: 0;
+}
+
+label {
+  font-size: 11px;
+  font-weight: 700;
+  color: #384bc3;
+  margin-bottom: 4px;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+input {
+  border: none;
+  border-bottom: 2px solid #e5e7eb;
+  padding: 8px 0;
+  font-size: 16px; /* Prevents iOS auto-zoom */
+  transition: border-color 0.3s ease;
+  outline: none;
+  background-color: transparent;
+}
+
+input:focus {
+  border-bottom: 2px solid #2563eb;
+}
+
+/* 5. Button - Locked at bottom */
+.signup-btn {
+  width: 100%;
+  background-color: #2563eb;
+  color: white;
+  border: none;
+  padding: 14px;
+  border-radius: 8px;
+  font-size: 16px;
+  font-weight: bold;
+  cursor: pointer;
+  margin-top: 10px;
+  flex-shrink: 0; /* Important: prevents button from squishing */
+  transition:
+    background-color 0.2s,
+    transform 0.1s;
+}
+
+.signup-btn:hover {
+  background-color: #1d4ed8;
+}
+
+.signup-btn:active {
+  transform: scale(0.98);
+}
+
+/* 6. Footer - Locked at bottom */
+.form-footer {
+  margin-top: 1.5rem;
+  text-align: center;
+  font-size: 14px;
+  color: #6b7280;
+  flex-shrink: 0;
+}
+
+.form-footer a {
+  color: #2563eb;
+  text-decoration: none;
+  font-weight: bold;
+}
+
+/* 7. Responsive Height Adjustments */
+@media screen and (max-height: 600px) {
+  .form-card {
+    padding: 15px 20px;
+  }
+  .form-header {
+    margin-bottom: 10px;
+  }
+  .form-header h1 {
+    font-size: 20px;
+  }
+  .input-group {
+    margin-bottom: 8px;
+  }
+  .form-footer {
+    margin-top: 10px;
+  }
+}
