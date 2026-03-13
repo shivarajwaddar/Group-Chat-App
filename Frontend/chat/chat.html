@@ -1,0 +1,73 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Full Screen Chat UI</title>
+    <link rel="stylesheet" href="chat.css" />
+  </head>
+  <body>
+    <div class="app-container">
+      <aside class="sidebar">
+        <header class="bar-header">
+          <div class="profile-circle"></div>
+          <h3 class="app-title">ChatApp</h3>
+          <span class="menu-label">Menu</span>
+        </header>
+        <div class="search-section">
+          <input type="text" placeholder="Search or start new chat" />
+        </div>
+        <div class="chat-list">
+          <div class="chat-item active">
+            <div class="profile-circle"></div>
+            <div class="chat-meta">
+              <div class="chat-name">
+                <strong>Project Lead</strong> <small>14:45</small>
+              </div>
+              <p>The code is ready.</p>
+            </div>
+          </div>
+          <div class="chat-item">
+            <div class="profile-circle"></div>
+            <div class="chat-meta">
+              <div class="chat-name">
+                <strong>Design Team</strong> <small>Yesterday</small>
+              </div>
+              <p>Check the new colors.</p>
+            </div>
+          </div>
+        </div>
+      </aside>
+
+      <main class="chat-window">
+        <header class="bar-header">
+          <div class="current-user">
+            <div class="profile-circle small"></div>
+            <div>
+              <strong>Project Lead</strong>
+              <p class="status">online</p>
+            </div>
+          </div>
+          <span class="menu-label">Search</span>
+        </header>
+
+        <section class="message-container">
+          <div class="msg received">
+            This is the full-screen layout with WhatsApp colors.
+            <span class="time">14:40</span>
+          </div>
+          <div class="msg sent">
+            The sidebar and headers are a different color now.
+            <span class="time">14:45</span>
+          </div>
+        </section>
+
+        <footer class="input-container">
+          <span class="action-text">Attach</span>
+          <input type="text" placeholder="Type a message" id="msgInput" />
+          <span class="action-text send">Send</span>
+        </footer>
+      </main>
+    </div>
+  </body>
+</html>

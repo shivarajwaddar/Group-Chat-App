@@ -1,0 +1,203 @@
+/* WhatsApp Color Palette */
+:root {
+  --header-bg: #f0f2f5; /* Sidebar and Top Name Bar */
+  --sidebar-border: #e9edef;
+  --chat-wallpaper: #efeae2; /* Main message background */
+  --bubble-sent: #d9fdd3; /* Light green for sent messages */
+  --bubble-received: #ffffff; /* White for received messages */
+  --text-dark: #111b21;
+  --text-muted: #667781;
+}
+
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+  font-family: "Segoe UI", "Helvetica Neue", Arial, sans-serif;
+}
+
+body,
+html {
+  height: 100%;
+  width: 100%;
+  overflow: hidden;
+}
+
+/* Full Screen Container */
+.app-container {
+  display: flex;
+  width: 100vw;
+  height: 100vh;
+}
+
+/* SIDEBAR: Specific Color */
+.sidebar {
+  width: 30%;
+  min-width: 300px;
+  background: #ffffff;
+  border-right: 1px solid var(--sidebar-border);
+  display: flex;
+  flex-direction: column;
+}
+
+.bar-header {
+  height: 60px;
+  background: var(--header-bg); /* Distinct color for top bars */
+  padding: 0 16px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.profile-circle {
+  width: 40px;
+  height: 40px;
+  background: #dfe5e7;
+  border-radius: 50%;
+  flex-shrink: 0;
+}
+.profile-circle.small {
+  width: 35px;
+  height: 35px;
+}
+
+.search-section {
+  padding: 8px 12px;
+}
+.search-section input {
+  width: 100%;
+  border: none;
+  background: var(--header-bg);
+  padding: 8px 12px;
+  border-radius: 8px;
+  outline: none;
+}
+
+/* Chat List Items */
+.chat-list {
+  flex: 1;
+  overflow-y: auto;
+}
+.chat-item {
+  display: flex;
+  padding: 12px 16px;
+  cursor: pointer;
+  border-bottom: 1px solid #f5f6f6;
+}
+.chat-item.active {
+  background: #f0f2f5;
+}
+.chat-meta {
+  flex: 1;
+  margin-left: 12px;
+  overflow: hidden;
+}
+.chat-name {
+  display: flex;
+  justify-content: space-between;
+  font-size: 14px;
+  color: var(--text-dark);
+}
+.chat-meta p {
+  font-size: 13px;
+  color: var(--text-muted);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+/* MAIN CHAT WINDOW: Specific Color */
+.chat-window {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  background: var(--chat-wallpaper); /* Beige background */
+}
+
+.current-user {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+.status {
+  font-size: 12px;
+  color: var(--text-muted);
+}
+
+/* MESSAGE CONTAINER: Scroll Behavior */
+.message-container {
+  flex: 1;
+  overflow-y: auto; /* Content scrolls here */
+  padding: 20px 7%;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+/* Bubbles & Timestamps */
+.msg {
+  max-width: 65%;
+  padding: 8px 12px;
+  border-radius: 8px;
+  font-size: 14.2px;
+  line-height: 1.4;
+  position: relative;
+  box-shadow: 0 1px 0.5px rgba(0, 0, 0, 0.13);
+}
+
+.sent {
+  align-self: flex-end;
+  background: var(--bubble-sent);
+  border-top-right-radius: 0;
+}
+.received {
+  align-self: flex-start;
+  background: var(--bubble-received);
+  border-top-left-radius: 0;
+}
+
+.time {
+  font-size: 11px;
+  color: var(--text-muted);
+  float: right;
+  margin-top: 4px;
+  margin-left: 8px;
+}
+
+/* INPUT CONTAINER: Specific Color */
+.input-container {
+  height: 62px;
+  background: var(--header-bg); /* Distinct color at bottom */
+  padding: 5px 16px;
+  display: flex;
+  align-items: center;
+  gap: 15px;
+}
+
+.input-container input {
+  flex: 1;
+  height: 42px;
+  border: none;
+  padding: 0 15px;
+  border-radius: 8px;
+  outline: none;
+  font-size: 15px;
+}
+
+.action-text {
+  color: var(--text-muted);
+  cursor: pointer;
+  font-size: 14px;
+  font-weight: 500;
+}
+.action-text.send {
+  color: #008069;
+  font-weight: 700;
+}
+
+/* --- RESPONSIVE --- */
+@media (max-width: 768px) {
+  .sidebar {
+    display: none;
+  } /* On mobile, the chat window becomes 100% full screen */
+}

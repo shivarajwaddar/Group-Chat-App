@@ -20,7 +20,7 @@ async function submitForm(event) {
     console.log(localStorage.getItem("token"));
 
     // 3. Redirect to the Chat Page
-    // window.location.href = "../Chat/chat.html";
+    window.location.href = "../chat/chat.html";
   } catch (err) {
     if (err.response) {
       // Check for 401 (Unauthorized/Wrong Password) or 404 (User not found)
