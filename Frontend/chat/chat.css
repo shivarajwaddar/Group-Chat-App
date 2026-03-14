@@ -201,3 +201,18 @@ html {
     display: none;
   } /* On mobile, the chat window becomes 100% full screen */
 }
+
+/* Specific Style for the User Name */
+.user-name {
+  font-size: 0.75rem; /* Smaller than the message text */
+  font-weight: 700; /* Bold to stand out */
+  color: #06cf9c; /* WhatsApp-style green */
+  margin-bottom: 2px; /* Space between name and message */
+  display: block; /* Ensures it stays on its own line */
+}
+
+/* Optional: Different color for your own name if you decide to show it */
+.sent .user-name {
+  color: #008069; /* Darker green for 'sent' messages */
+  text-align: right; /* Align to the right side of the bubble */
+}

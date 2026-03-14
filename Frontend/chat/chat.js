@@ -1,69 +1,86 @@
-// 1. Function to send message to Backend
+function appendMessageToUI(msg, type) {
+  const chatBox = document.getElementById("chatBox");
+  const msgDiv = document.createElement("div");
+  msgDiv.className = `msg ${type}`;
+
+  const timeSource = msg.createdAt || msg.timeStamp || new Date();
+  const now = new Date(timeSource);
+  const timeStr = `${now.getHours()}:${now.getMinutes().toString().padStart(2, "0")}`;
+
+  // NEW LOGIC: If type is 'sent', it's always "You".
+  // Otherwise, get the name from the database object.
+  const displayName =
+    type === "sent" ? "You" : msg.db_user ? msg.db_user.name : "Unknown";
+
+  msgDiv.innerHTML = `
+        <div class="user-name">${displayName}</div>
+        <div class="message-text">${msg.content}</div>
+        <span class="time">${timeStr}</span>
+    `;
+
+  chatBox.appendChild(msgDiv);
+  chatBox.scrollTop = chatBox.scrollHeight;
+}
+
+// LOAD MESSAGES
+window.addEventListener("DOMContentLoaded", async () => {
+  const token = localStorage.getItem("token");
+  const currentUserId = localStorage.getItem("currentUserId");
+
+  const chatBox = document.getElementById("chatBox");
+
+  try {
+    const response = await axios.get(
+      "http://localhost:3000/api/messages/get-messages",
+      { headers: { Authorization: token } },
+    );
+
+    if (response.status === 200) {
+      const messages = response.data.data;
+      chatBox.innerHTML = "";
+
+      messages.forEach((msg) => {
+        // Use == because one might be a string and the other a number
+        const type = msg.dbUserId == currentUserId ? "sent" : "received";
+        appendMessageToUI(msg, type);
+      });
+    }
+  } catch (error) {
+    console.error("Error loading messages:", error);
+    if (error.response?.status === 401)
+      window.location.href = "../login/login.html";
+  }
+});
+
+// SEND MESSAGE
 async function sendMessage(event) {
   if (event) event.preventDefault();
 
   const messageInput = document.getElementById("msgInput");
   const messageText = messageInput.value.trim();
+  const token = localStorage.getItem("token");
 
   if (!messageText) return;
-
-  // Retrieve the Token saved during Signin
-  const token = localStorage.getItem("token");
 
   try {
     const response = await axios.post(
       "http://localhost:3000/api/messages/send",
       { content: messageText },
-      {
-        headers: {
-          Authorization: token,
-        },
-      },
+      { headers: { Authorization: token } },
     );
 
     if (response.status === 201) {
-      // Add message to screen immediately
-      appendMessageToUI(messageText, "sent");
-      messageInput.value = ""; // Clear input box
+      // FIX: Pass the WHOLE data object from the response, not just the text
+      const newMessage = response.data.data;
+      appendMessageToUI(newMessage, "sent");
+      messageInput.value = "";
     }
   } catch (error) {
-    if (error.response && error.response.status === 401) {
-      alert("Your session expired. Please login again.");
-      window.location.href = "../login/login.html";
-    } else {
-      console.error("Error sending message:", error);
-      alert("Something went wrong while sending.");
-    }
+    console.error("Error sending message:", error);
+    alert("Could not send message.");
   }
 }
 
-// 2. Function to visually add message bubbles
-function appendMessageToUI(text, type) {
-  const chatBox = document.getElementById("chatBox");
-
-  // Create the message container
-  const msgDiv = document.createElement("div");
-  msgDiv.className = `msg ${type}`; // type is 'sent' or 'received'
-
-  // Format time (e.g., 14:05)
-  const now = new Date();
-  const timeStr = `${now.getHours()}:${now.getMinutes().toString().padStart(2, "0")}`;
-
-  msgDiv.innerHTML = `
-        ${text}
-        <span class="time">${timeStr}</span>
-    `;
-
-  // Append to the chatBox
-  chatBox.appendChild(msgDiv);
-
-  // Auto-scroll to the bottom
-  chatBox.scrollTop = chatBox.scrollHeight;
-}
-
-// 3. Optional: Allow pressing "Enter" to send
 document.getElementById("msgInput").addEventListener("keypress", (e) => {
-  if (e.key === "Enter") {
-    sendMessage(e);
-  }
+  if (e.key === "Enter") sendMessage(e);
 });

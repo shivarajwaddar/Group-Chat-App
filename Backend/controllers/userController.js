@@ -28,6 +28,7 @@ const signin = async (req, res) => {
     res.status(200).json({
       message: "Login successful",
       token: token,
+      userId: foundUser.id,
       name: foundUser.name,
     });
   } catch (err) {

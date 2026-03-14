@@ -10,12 +10,11 @@ async function submitForm(event) {
       { email, password },
     );
 
-    // 1. Success! Show message
-    alert(response.data.message);
-
     // 2. SAVE THE TOKEN to LocalStorage
     // This is the "ID Card" your auth middleware looks for!
     localStorage.setItem("token", response.data.token);
+    localStorage.setItem("currentUserId", response.data.userId);
+    localStorage.setItem("userName", response.data.name);
 
     console.log(localStorage.getItem("token"));
 
@@ -23,7 +22,9 @@ async function submitForm(event) {
     window.location.href = "../chat/chat.html";
   } catch (err) {
     if (err.response) {
-      // Check for 401 (Unauthorized/Wrong Password) or 404 (User not found)
+      // Extract status from the response object
+      const { status } = err.response;
+
       if (status === 401 || status === 404) {
         alert(err.response.data.message);
       } else {

@@ -8,21 +8,11 @@ const Message = sequelize.define(
       type: DataTypes.STRING,
       allowNull: false,
     },
-    timeStamp: {
-      type: DataTypes.DATE,
-      allowNull: false,
-      defaultValue: DataTypes.NOW,
-    },
-    // ADD THIS: The link to the User who sent the message
-    // This allows you to say "This message belongs to User #5"
-    dbUserId: {
-      type: DataTypes.INTEGER,
-      allowNull: false,
-    },
+    // You don't need timeStamp, dbUserId, or dbUserName here.
+    // Sequelize adds 'createdAt' automatically.
+    // The User ID will be added by the Association below.
   },
-  {
-    tableName: "messages",
-  },
+  { tableName: "messages" },
 );
 
 module.exports = Message;
