@@ -32,14 +32,19 @@ const addMessage = async (req, res) => {
     const { content } = req.body;
     if (!content) return res.status(400).json({ error: "Content required" });
 
-    // Sequelize handles 'createdAt' (timeStamp) automatically.
-    // Since we use 'dbUserId' as the foreign key in associations:
     const newMessage = await Message.create({
       content: content,
-      dbUserId: req.user.id, // Provided by your Auth middleware
+      dbUserId: req.user.id,
     });
 
-    res.status(201).json({ success: true, data: newMessage });
+    // OPTIMIZATION: Fetch the message again WITH the User name
+    // This ensures that when you broadcast it, the name is included!
+    const messageWithUser = await Message.findOne({
+      where: { id: newMessage.id },
+      include: [{ model: User, attributes: ["name"] }],
+    });
+
+    res.status(201).json({ success: true, data: messageWithUser });
   } catch (err) {
     console.error("Error adding message:", err);
     res.status(500).json({ error: "Internal Server Error" });
