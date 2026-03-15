@@ -1,4 +1,4 @@
-const sequelize = require("../utils/db-connection");
+const sequelize = require("../utils/db-connection.js");
 const { DataTypes } = require("sequelize");
 
 const Message = sequelize.define(
@@ -8,9 +8,17 @@ const Message = sequelize.define(
       type: DataTypes.STRING,
       allowNull: false,
     },
-    // You don't need timeStamp, dbUserId, or dbUserName here.
-    // Sequelize adds 'createdAt' automatically.
-    // The User ID will be added by the Association below.
+    // The ID of the person sending the message
+    dbUserId: {
+      type: DataTypes.INTEGER,
+      allowNull: false,
+    },
+    // NEW: The ID of the person receiving the message
+    // If this is NULL, it could mean it's a "Global" group message
+    recipientId: {
+      type: DataTypes.INTEGER,
+      allowNull: true,
+    },
   },
   { tableName: "messages" },
 );

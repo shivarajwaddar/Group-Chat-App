@@ -1,6 +1,7 @@
 const { Server } = require("socket.io");
 const authMiddleware = require("./middleware.js");
 const registerChatHandlers = require("./handlers/chat.js");
+const registerPersonalChatHandlers = require("./handlers/personalChat.js"); // Add this
 
 const initSocket = (server) => {
   // Your CORS and Server logic lives here!
@@ -19,6 +20,7 @@ const initSocket = (server) => {
 
     // Link the chat events to this connection
     registerChatHandlers(io, socket);
+    registerPersonalChatHandlers(io, socket);
 
     socket.on("disconnect", () => {
       console.log("User disconnected:", socket.user.name);
