@@ -1,9 +1,22 @@
-const socket = io("http://localhost:3000"); // Add the URL here too!
+// Retrieve items from storage
+const token = localStorage.getItem("token");
+const currentUserId = localStorage.getItem("currentUserId");
 
-// --- 1. SOCKET LISTENER ---
-// Add this so you receive messages from others in real-time
+// --- 1. SOCKET INITIALIZATION WITH AUTH ---
+// By passing the token here, the server can verify the user and
+// attach their name/ID to the socket object automatically.
+const socket = io("http://localhost:3000", {
+  auth: {
+    token: token,
+  },
+});
+
+// --- 2. SOCKET LISTENER ---
 socket.on("receiveMessage", (newMessage) => {
-  // Since someone else sent this, it's always 'received' type
+  // If the server broadcasts to everyone, we check if we were the sender
+  // to avoid showing the message twice.
+  if (String(newMessage.dbUserId) === String(currentUserId)) return;
+
   appendMessageToUI(newMessage, "received");
 });
 
@@ -16,6 +29,7 @@ function appendMessageToUI(msg, type) {
   const now = new Date(timeSource);
   const timeStr = `${now.getHours()}:${now.getMinutes().toString().padStart(2, "0")}`;
 
+  // Use the name from the message object sent by the socket
   const displayName =
     type === "sent" ? "You" : msg.db_user ? msg.db_user.name : "Unknown";
 
@@ -29,10 +43,8 @@ function appendMessageToUI(msg, type) {
   chatBox.scrollTop = chatBox.scrollHeight;
 }
 
-// LOAD MESSAGES (Keep this as is - it's for your history on refresh)
+// LOAD HISTORY
 window.addEventListener("DOMContentLoaded", async () => {
-  const token = localStorage.getItem("token");
-  const currentUserId = localStorage.getItem("currentUserId");
   const chatBox = document.getElementById("chatBox");
 
   try {
@@ -45,7 +57,8 @@ window.addEventListener("DOMContentLoaded", async () => {
       const messages = response.data.data;
       chatBox.innerHTML = "";
       messages.forEach((msg) => {
-        const type = msg.dbUserId == currentUserId ? "sent" : "received";
+        const type =
+          String(msg.dbUserId) === String(currentUserId) ? "sent" : "received";
         appendMessageToUI(msg, type);
       });
     }
@@ -56,39 +69,30 @@ window.addEventListener("DOMContentLoaded", async () => {
   }
 });
 
-// SEND MESSAGE
+// --- 3. SEND MESSAGE ---
 async function sendMessage(event) {
   if (event) event.preventDefault();
 
   const messageInput = document.getElementById("msgInput");
   const messageText = messageInput.value.trim();
-  const token = localStorage.getItem("token");
 
   if (!messageText) return;
 
-  try {
-    const response = await axios.post(
-      "http://localhost:3000/api/messages/send",
-      { content: messageText },
-      { headers: { Authorization: token } },
-    );
+  // OPTION: Pure Socket approach (No Axios needed for sending)
+  // The server will receive this, use the 'auth' token to find the user,
+  // save to DB, and then broadcast.
+  const messageData = {
+    content: messageText,
+    createdAt: new Date(),
+  };
 
-    if (response.status === 201) {
-      const newMessage = response.data.data;
+  // 1. Show it on your screen immediately
+  appendMessageToUI({ ...messageData, dbUserId: currentUserId }, "sent");
 
-      // Update your own UI
-      appendMessageToUI(newMessage, "sent");
+  // 2. Emit to server
+  socket.emit("sendMessage", messageData);
 
-      // --- 2. SOCKET EMIT ---
-      // Tell the server to broadcast this message to everyone else
-      socket.emit("sendMessage", newMessage);
-
-      messageInput.value = "";
-    }
-  } catch (error) {
-    console.error("Error sending message:", error);
-    alert("Could not send message.");
-  }
+  messageInput.value = "";
 }
 
 document.getElementById("msgInput").addEventListener("keypress", (e) => {

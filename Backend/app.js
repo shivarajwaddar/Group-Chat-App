@@ -1,22 +1,22 @@
 require("dotenv").config();
 var cors = require("cors");
 const express = require("express");
-const http = require("http"); // 1. Import Node's built-in HTTP module
-const { Server } = require("socket.io"); // 2. Import Socket.io
+const http = require("http");
+const { Server } = require("socket.io");
+const jwt = require("jsonwebtoken"); // Needed for auth
 
 const db = require("./utils/db-connection");
+const Message = require("./models/chatModel"); // Import your Message model
+const User = require("./models/userModel"); // Import your User model
 const userRouter = require("./routes/userRoutes");
 const chatRouter = require("./routes/chatRoutes");
 
 const app = express();
-
-// Create the HTTP server using the Express app
 const server = http.createServer(app);
 
-// 3. Initialize Socket.io and attach it to the server
 const io = new Server(server, {
   cors: {
-    origin: "*", // Adjust this in production for security
+    origin: "*",
     methods: ["GET", "POST"],
   },
 });
@@ -24,29 +24,63 @@ const io = new Server(server, {
 app.use(cors());
 app.use(express.json());
 
-app.use("/api/users", userRouter);
-app.use("/api/messages", chatRouter);
+// --- 1. SOCKET.IO AUTHENTICATION MIDDLEWARE ---
+io.use((socket, next) => {
+  const token = socket.handshake.auth.token;
 
-// 4. Socket.io Connection Logic
-io.on("connection", (socket) => {
-  console.log("User connected:", socket.id);
+  if (!token) {
+    return next(new Error("Authentication error: Token missing"));
+  }
 
-  // When a user sends a message, tell the server to broadcast it
-  socket.on("sendMessage", (newMessage) => {
-    // broadcast.emit sends to everyone EXCEPT the sender
-    socket.broadcast.emit("receiveMessage", newMessage);
-  });
+  jwt.verify(token, process.env.JWT_SECRET, (err, decoded) => {
+    if (err) return next(new Error("Authentication error: Invalid token"));
 
-  socket.on("disconnect", () => {
-    console.log("User disconnected");
+    // Store user data in the socket object for use in events
+    socket.user = decoded;
+    next();
   });
 });
 
-// 5. IMPORTANT: Start 'server', not 'app'
+app.use("/api/users", userRouter);
+app.use("/api/messages", chatRouter);
+
+// --- 2. SOCKET.IO CONNECTION LOGIC ---
+io.on("connection", (socket) => {
+  console.log("User authenticated and connected:", socket.user.name);
+
+  socket.on("sendMessage", async (data) => {
+    try {
+      // A. SAVE TO DATABASE
+      // We use socket.user.id which we got from the token in the middleware
+      const savedMessage = await Message.create({
+        content: data.content,
+        dbUserId: socket.user.userId,
+      });
+
+      // B. BROADCAST TO ALL
+      // We include the user's name so the frontend can display it
+      io.emit("receiveMessage", {
+        id: savedMessage.id,
+        content: savedMessage.content,
+        dbUserId: socket.user.userId,
+        createdAt: savedMessage.createdAt,
+        db_user: { name: socket.user.name }, // Sending user details back
+      });
+    } catch (error) {
+      console.error("Error saving message:", error);
+      socket.emit("error_message", "Failed to save message to database");
+    }
+  });
+
+  socket.on("disconnect", () => {
+    console.log("User disconnected:", socket.user.name);
+  });
+});
+
 db.sync()
   .then(() => {
     server.listen(3000, () => {
-      console.log("Server running on port 3000 with WebSockets");
+      console.log("Server running on port 3000 with WebSockets & Auth");
     });
   })
   .catch((err) => {
