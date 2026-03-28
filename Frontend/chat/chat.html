@@ -3,53 +3,87 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>ChatApp - Full Screen</title>
+    <title>ChatApp - Pro Edition</title>
     <link rel="stylesheet" href="chat.css" />
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css"
+    />
   </head>
   <body>
     <div class="app-container">
       <aside class="sidebar">
         <header class="bar-header">
-          <div class="profile-circle"></div>
+          <div class="profile-circle">
+            <i class="fa-solid fa-user"></i>
+          </div>
           <h3 class="app-title">ChatApp</h3>
-          <span class="menu-label">Menu</span>
+          <span class="menu-label" onclick="logout()" style="cursor: pointer">
+            <i class="fa-solid fa-right-from-bracket"></i>
+          </span>
         </header>
+
         <div class="search-section">
-          <input type="text" placeholder="Search or start new chat" />
+          <div class="search-wrapper">
+            <i class="fa-solid fa-magnifying-glass"></i>
+            <input
+              type="text"
+              id="searchEmail"
+              placeholder="Search by name or email..."
+            />
+          </div>
         </div>
-        <div class="chat-list">
-          <div class="chat-item active">
-            <div class="profile-circle"></div>
+
+        <div class="chat-list" id="chatList">
+          <div
+            class="chat-item active"
+            id="globalChatItem"
+            onclick="switchToGlobal()"
+          >
+            <div class="profile-circle global-icon">
+              <i class="fa-solid fa-earth-americas"></i>
+            </div>
             <div class="chat-meta">
               <div class="chat-name">
-                <strong>Global Group</strong> <small>Online</small>
+                <strong>Global Group</strong>
               </div>
-              <p>Public Chat Room</p>
+              <p>Public Community Chat</p>
             </div>
           </div>
+
+          <div id="availableUsers"></div>
         </div>
       </aside>
 
       <main class="chat-window">
         <header class="bar-header">
           <div class="current-user">
-            <div class="profile-circle small"></div>
+            <div class="profile-circle small" id="headerIcon">
+              <i class="fa-solid fa-hashtag"></i>
+            </div>
             <div>
-              <strong>Global Group</strong>
-              <p class="status">online</p>
+              <strong id="chatHeader">Global Group</strong>
+              <p class="status" id="chatStatus">online</p>
             </div>
           </div>
-          <span class="menu-label">Search</span>
+          <div class="header-actions">
+            <i class="fa-solid fa-phone"></i>
+            <i class="fa-solid fa-video"></i>
+            <i class="fa-solid fa-ellipsis-vertical"></i>
+          </div>
         </header>
 
         <section class="message-container" id="chatBox"></section>
 
         <footer class="input-container">
-          <span class="action-text">Attach</span>
-          <input type="text" placeholder="Type a message" id="msgInput" />
-          <span class="action-text send" onclick="sendMessage(event)"
-            >Send</span
-          >
+          <div class="input-wrapper">
+            <i class="fa-solid fa-paperclip action-icon"></i>
+            <input type="text" placeholder="Type a message..." id="msgInput" />
+            <i class="fa-solid fa-face-smile action-icon"></i>
+          </div>
+          <button class="send-btn" onclick="sendMessage(event)">
+            <i class="fa-solid fa-paper-plane"></i>
+          </button>
         </footer>
       </main>
     </div>
@@ -57,5 +91,12 @@
     <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
     <script src="http://localhost:3000/socket.io/socket.io.js"></script>
     <script src="chat.js"></script>
+
+    <script>
+      function logout() {
+        localStorage.clear();
+        window.location.href = "login.html";
+      }
+    </script>
   </body>
 </html>

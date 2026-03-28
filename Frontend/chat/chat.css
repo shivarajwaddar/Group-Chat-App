@@ -1,117 +1,135 @@
-/* WhatsApp Color Palette */
-:root {
-  --header-bg: #f0f2f5; /* Sidebar and Top Name Bar */
-  --sidebar-border: #e9edef;
-  --chat-wallpaper: #efeae2; /* Main message background */
-  --bubble-sent: #d9fdd3; /* Light green for sent messages */
-  --bubble-received: #ffffff; /* White for received messages */
-  --text-dark: #111b21;
-  --text-muted: #667781;
-}
-
+/* --- 1. GENERAL RESET --- */
 * {
-  box-sizing: border-box;
   margin: 0;
   padding: 0;
-  font-family: "Segoe UI", "Helvetica Neue", Arial, sans-serif;
+  box-sizing: border-box;
+  font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
 }
 
 body,
 html {
   height: 100%;
-  width: 100%;
+  background-color: #f0f2f5; /* Light grey background */
+}
+
+/* --- 2. LAYOUT CONTAINER --- */
+.app-container {
+  display: flex;
+  height: 100vh;
+  width: 100vw;
   overflow: hidden;
 }
 
-/* Full Screen Container */
-.app-container {
-  display: flex;
-  width: 100vw;
-  height: 100vh;
-}
-
-/* SIDEBAR: Specific Color */
+/* --- 3. SIDEBAR STYLES --- */
 .sidebar {
-  width: 30%;
-  min-width: 300px;
+  width: 350px;
   background: #ffffff;
-  border-right: 1px solid var(--sidebar-border);
+  border-right: 1px solid #ddd;
   display: flex;
   flex-direction: column;
 }
 
 .bar-header {
   height: 60px;
-  background: var(--header-bg); /* Distinct color for top bars */
-  padding: 0 16px;
+  background: #ededed;
   display: flex;
   align-items: center;
   justify-content: space-between;
+  padding: 0 15px;
+  color: #54656f;
 }
 
 .profile-circle {
   width: 40px;
   height: 40px;
-  background: #dfe5e7;
+  background: #d9dbdf;
   border-radius: 50%;
-  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 20px;
 }
+
 .profile-circle.small {
   width: 35px;
   height: 35px;
 }
 
+/* --- 4. SEARCH BOX --- */
 .search-section {
-  padding: 8px 12px;
-}
-.search-section input {
-  width: 100%;
-  border: none;
-  background: var(--header-bg);
-  padding: 8px 12px;
-  border-radius: 8px;
-  outline: none;
+  padding: 10px;
+  background: #fff;
 }
 
-/* Chat List Items */
+.search-wrapper {
+  background: #f0f2f5;
+  display: flex;
+  align-items: center;
+  padding: 8px 15px;
+  border-radius: 8px;
+  gap: 15px;
+}
+
+.search-wrapper i {
+  color: #8696a0;
+}
+
+.search-wrapper input {
+  border: none;
+  background: transparent;
+  width: 100%;
+  outline: none;
+  font-size: 14px;
+}
+
+/* --- 5. CHAT LIST (Scrollable) --- */
 .chat-list {
   flex: 1;
   overflow-y: auto;
 }
+
 .chat-item {
   display: flex;
-  padding: 12px 16px;
+  align-items: center;
+  padding: 12px 15px;
   cursor: pointer;
-  border-bottom: 1px solid #f5f6f6;
+  transition: background 0.2s;
+  border-bottom: 1px solid #f5f5f5;
 }
+
+.chat-item:hover {
+  background: #f5f6f6;
+}
+
 .chat-item.active {
-  background: #f0f2f5;
+  background: #ebebeb;
 }
+
 .chat-meta {
-  flex: 1;
-  margin-left: 12px;
+  margin-left: 15px;
   overflow: hidden;
 }
-.chat-name {
-  display: flex;
-  justify-content: space-between;
-  font-size: 14px;
-  color: var(--text-dark);
+
+.chat-name strong {
+  font-size: 16px;
+  color: #111b21;
 }
+
 .chat-meta p {
   font-size: 13px;
-  color: var(--text-muted);
+  color: #667781;
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
 }
 
-/* MAIN CHAT WINDOW: Specific Color */
+/* --- 6. MAIN CHAT WINDOW --- */
 .chat-window {
   flex: 1;
   display: flex;
   flex-direction: column;
-  background: var(--chat-wallpaper); /* Beige background */
+  background-image: url("https://user-images.githubusercontent.com/15075759/28719144-86dc0f70-73b1-11e7-911d-60d70fcded21.png"); /* WhatsApp Wallpaper */
+  background-color: #e5ddd5;
 }
 
 .current-user {
@@ -119,100 +137,113 @@ html {
   align-items: center;
   gap: 12px;
 }
+
 .status {
   font-size: 12px;
-  color: var(--text-muted);
+  color: #667781;
 }
 
-/* MESSAGE CONTAINER: Scroll Behavior */
+.header-actions i {
+  margin-left: 20px;
+  cursor: pointer;
+  color: #54656f;
+}
+
+/* --- 7. MESSAGE BUBBLES --- */
 .message-container {
   flex: 1;
-  overflow-y: auto; /* Content scrolls here */
   padding: 20px 7%;
+  overflow-y: auto;
   display: flex;
   flex-direction: column;
   gap: 10px;
 }
 
-/* Bubbles & Timestamps */
 .msg {
-  max-width: 65%;
+  max-width: 60%;
   padding: 8px 12px;
   border-radius: 8px;
-  font-size: 14.2px;
-  line-height: 1.4;
+  font-size: 14.5px;
   position: relative;
   box-shadow: 0 1px 0.5px rgba(0, 0, 0, 0.13);
+  line-height: 1.4;
 }
 
-.sent {
-  align-self: flex-end;
-  background: var(--bubble-sent);
-  border-top-right-radius: 0;
-}
-.received {
+.msg.received {
   align-self: flex-start;
-  background: var(--bubble-received);
-  border-top-left-radius: 0;
+  background: #ffffff;
+  color: #111b21;
+}
+
+.msg.sent {
+  align-self: flex-end;
+  background: #dcf8c6;
+  color: #111b21;
+}
+
+.user-name {
+  font-size: 11px;
+  font-weight: bold;
+  color: #00a884;
+  margin-bottom: 3px;
 }
 
 .time {
-  font-size: 11px;
-  color: var(--text-muted);
-  float: right;
+  display: block;
+  font-size: 10px;
+  text-align: right;
+  color: #667781;
   margin-top: 4px;
-  margin-left: 8px;
 }
 
-/* INPUT CONTAINER: Specific Color */
+/* --- 8. INPUT AREA --- */
 .input-container {
-  height: 62px;
-  background: var(--header-bg); /* Distinct color at bottom */
-  padding: 5px 16px;
+  background: #ededed;
+  padding: 10px 15px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.input-wrapper {
+  flex: 1;
+  background: #fff;
+  border-radius: 8px;
+  padding: 10px 15px;
   display: flex;
   align-items: center;
   gap: 15px;
 }
 
-.input-container input {
+.input-wrapper input {
   flex: 1;
-  height: 42px;
   border: none;
-  padding: 0 15px;
-  border-radius: 8px;
   outline: none;
   font-size: 15px;
 }
 
-.action-text {
-  color: var(--text-muted);
+.action-icon {
+  color: #54656f;
+  font-size: 20px;
   cursor: pointer;
-  font-size: 14px;
-  font-weight: 500;
-}
-.action-text.send {
-  color: #008069;
-  font-weight: 700;
 }
 
-/* --- RESPONSIVE --- */
-@media (max-width: 768px) {
-  .sidebar {
-    display: none;
-  } /* On mobile, the chat window becomes 100% full screen */
+.send-btn {
+  border: none;
+  background: transparent;
+  font-size: 22px;
+  color: #54656f;
+  cursor: pointer;
 }
 
-/* Specific Style for the User Name */
-.user-name {
-  font-size: 0.75rem; /* Smaller than the message text */
-  font-weight: 700; /* Bold to stand out */
-  color: #06cf9c; /* WhatsApp-style green */
-  margin-bottom: 2px; /* Space between name and message */
-  display: block; /* Ensures it stays on its own line */
+.send-btn:hover {
+  color: #00a884;
 }
 
-/* Optional: Different color for your own name if you decide to show it */
-.sent .user-name {
-  color: #008069; /* Darker green for 'sent' messages */
-  text-align: right; /* Align to the right side of the bubble */
+/* Scrollbar Styling */
+::-webkit-scrollbar {
+  width: 6px;
+}
+::-webkit-scrollbar-thumb {
+  background: #c1c1c1;
 }

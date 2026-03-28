@@ -1,29 +1,23 @@
 const { Server } = require("socket.io");
-const authMiddleware = require("./middleware.js");
+const authMiddleware = require("./middleware.js"); // Your Socket JWT check
 const registerChatHandlers = require("./handlers/chat.js");
-const registerPersonalChatHandlers = require("./handlers/personalChat.js"); // Add this
+const registerPersonalChatHandlers = require("./handlers/personalChat.js");
 
 const initSocket = (server) => {
-  // Your CORS and Server logic lives here!
   const io = new Server(server, {
-    cors: {
-      origin: "*",
-      methods: ["GET", "POST"],
-    },
+    cors: { origin: "*", methods: ["GET", "POST"] },
   });
 
-  // Apply the JWT security check
   io.use(authMiddleware);
 
   io.on("connection", (socket) => {
-    console.log("User connected:", socket.user.name);
+    console.log("Connected:", socket.user.name);
 
-    // Link the chat events to this connection
     registerChatHandlers(io, socket);
     registerPersonalChatHandlers(io, socket);
 
     socket.on("disconnect", () => {
-      console.log("User disconnected:", socket.user.name);
+      console.log("Disconnected:", socket.user.name);
     });
   });
 };

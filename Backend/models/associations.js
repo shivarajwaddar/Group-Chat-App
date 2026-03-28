@@ -1,17 +1,30 @@
 const User = require("./userModel");
 const Message = require("./chatModel");
 
-// 1. One-to-Many Relationship
+// --- 1. SENDER RELATIONSHIP ---
 // A User can send many messages
 User.hasMany(Message, {
-  foreignKey: "dbUserId", // This links to the column in your Message model
-  onDelete: "CASCADE", // If a user is deleted, their messages are deleted too
+  foreignKey: "dbUserId",
+  onDelete: "CASCADE",
 });
 
-// 2. BelongsTo Relationship
-// Each Message belongs to a specific User
+// A Message belongs to a Sender (User)
 Message.belongsTo(User, {
-  foreignKey: "dbUserId", // Ensuring both use the same key name
+  foreignKey: "dbUserId",
+});
+
+// --- 2. RECIPIENT RELATIONSHIP (For Private Chat) ---
+// A User can also be the recipient of many messages
+User.hasMany(Message, {
+  foreignKey: "recipientId",
+  as: "receivedMessages", // We use an alias to distinguish from sent messages
+  onDelete: "CASCADE",
+});
+
+// A Message belongs to a Recipient (User)
+Message.belongsTo(User, {
+  foreignKey: "recipientId",
+  as: "recipient", // Alias used for including recipient data in queries
 });
 
 module.exports = { User, Message };

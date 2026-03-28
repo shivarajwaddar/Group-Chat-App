@@ -1,11 +1,18 @@
 const express = require("express");
-const { signin, signup } = require("../controllers/userController");
-
 const router = express.Router();
 
-// Define your user-related routes here
-router.post("/signin", signin);
+// 1. Import the controller
+const userController = require("../controllers/userController");
 
-router.post("/signup", signup);
+// 2. Import the middleware (Since you used module.exports = authenticate, this IS the function)
+const authenticate = require("../middleware/auth");
+
+// --- Public Routes ---
+router.post("/signup", userController.signup);
+router.post("/signin", userController.signin);
+
+// --- Private Routes ---
+// Use 'authenticate' directly here instead of 'authenticate.authenticate'
+router.get("/all-users", authenticate, userController.getAllUsers);
 
 module.exports = router;

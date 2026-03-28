@@ -1,32 +1,58 @@
-// socket-io/handlers/personalChat.js
-const Message = require("../../models/chatModel"); // Import your Message model
+const Message = require("../../models/chatModel");
+const User = require("../../models/userModel");
 
 module.exports = (io, socket) => {
-  // 1. Join a specific room (e.g., room_user1_user2)
+  // 1. JOIN ROOM: The "Tunnel"
   socket.on("join_room", (data) => {
     socket.join(data.room);
-    console.log(`User ${socket.user.name} joined room: ${data.room}`);
+    console.log(`Socket ${socket.id} joined room: ${data.room}`);
   });
 
-  // 2. Handle private messages
+  // 2. NEW MESSAGE: The "Data"
   socket.on("new_message", async (data) => {
     try {
-      // Save to database
-      const savedMsg = await Message.create({
-        content: data.message,
-        dbUserId: socket.user.userId,
-        recipientId: data.recipientId, // Assuming you have this column
+      const { room, message } = data;
+
+      // LOGIC CHECK: Split the room string (e.g., "shiva@gmail.com_virat@gmail.com")
+      const participants = room.split("_");
+
+      // Find the email that is NOT mine
+      const recipientEmail = participants.find(
+        (email) => email.toLowerCase() !== socket.user.email.toLowerCase(),
+      );
+
+      console.log("Looking for recipient with email:", recipientEmail);
+
+      const recipient = await User.findOne({
+        where: { email: recipientEmail },
       });
 
-      // Emit ONLY to the people in that specific room
-      io.to(data.room).emit("receive_personal_message", {
-        id: savedMsg.id,
-        content: savedMsg.content,
-        senderName: socket.user.name,
-        room: data.room,
-      });
+      if (recipient) {
+        console.log("Recipient found! ID:", recipient.id);
+
+        const savedMsg = await Message.create({
+          content: message,
+          dbUserId: socket.user.userId, // The Sender (from auth middleware)
+          recipientId: recipient.id, // The Receiver (MUST NOT BE NULL)
+        });
+
+        // BROADCAST: Send to the private room tunnel
+        io.to(room).emit("receive_personal_message", {
+          room: room,
+          message: message,
+          senderName: socket.user.name,
+          senderEmail: socket.user.email,
+          createdAt: savedMsg.createdAt,
+        });
+      } else {
+        // IF YOU SEE THIS IN YOUR TERMINAL: Your room names don't match your user emails!
+        console.error(
+          "CRITICAL: Recipient not found in DB for email:",
+          recipientEmail,
+        );
+      }
     } catch (err) {
-      console.error("Personal chat error:", err);
+      console.error("Private Chat Error:", err);
     }
   });
 };

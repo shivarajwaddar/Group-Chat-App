@@ -4,11 +4,16 @@ const http = require("http");
 const cors = require("cors");
 const db = require("./utils/db-connection.js");
 
+// IMPORTANT: Import your associations here!
+// This ensures Sequelize "registers" the User and Message models
+// and their relationships before the .sync() command runs.
+require("./models/associations.js");
+
 // Routes
 const userRouter = require("./routes/userRoutes.js");
 const chatRouter = require("./routes/chatRoutes.js");
 
-// Import the Socket Manager explicitly
+// Socket Manager
 const initSocket = require("./socket_io/index.js");
 
 const app = express();
@@ -21,10 +26,11 @@ app.use(express.json());
 app.use("/api/users", userRouter);
 app.use("/api/messages", chatRouter);
 
-// Initialize WebSockets by passing the HTTP server
+// Initialize WebSockets
 initSocket(server);
 
 // Start Database and Server
+// Tip: Use { alter: true } only once if you need to add columns to existing tables
 db.sync()
   .then(() => {
     server.listen(3000, () => {
