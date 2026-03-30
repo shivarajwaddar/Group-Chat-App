@@ -30,10 +30,16 @@ const authenticate = async (req, res, next) => {
     // 6. Move to the next function (the Controller)
     next();
   } catch (err) {
+    if (err.name === "TokenExpiredError") {
+      // This keeps your console clean and tells the frontend exactly what happened
+      return res.status(401).json({
+        success: false,
+        message: "Session expired. Please log in again.",
+      });
+    }
+
     console.error("Authentication Error:", err);
-    return res
-      .status(401)
-      .json({ success: false, message: "Invalid or Expired Token" });
+    return res.status(401).json({ success: false, message: "Invalid Token" });
   }
 };
 

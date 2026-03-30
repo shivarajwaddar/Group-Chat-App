@@ -12,6 +12,7 @@ require("./models/associations.js");
 // Routes
 const userRouter = require("./routes/userRoutes.js");
 const chatRouter = require("./routes/chatRoutes.js");
+const groupRoutes = require("./routes/groupRoutes");
 
 // Socket Manager
 const initSocket = require("./socket_io/index.js");
@@ -25,19 +26,19 @@ app.use(express.json());
 // API Endpoints
 app.use("/api/users", userRouter);
 app.use("/api/messages", chatRouter);
+app.use("/api/groups", groupRoutes);
 
 // Initialize WebSockets
 initSocket(server);
 
 // Start Database and Server
 // Tip: Use { alter: true } only once if you need to add columns to existing tables
-db.sync()
+db.sync({ alter: true }) // This drops all tables and recreates them perfectly
   .then(() => {
     server.listen(3000, () => {
-      console.log("Server running on port 3000");
+      console.log("Server running on port 3000 - Database Reset & Synced");
     });
-  })
-  .catch((err) => console.error("DB Connection Error:", err));
+  });
 
 // require("dotenv").config();
 // var cors = require("cors");

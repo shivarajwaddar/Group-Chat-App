@@ -7,7 +7,7 @@
     <link rel="stylesheet" href="chat.css" />
     <link
       rel="stylesheet"
-      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css"
     />
   </head>
   <body>
@@ -18,9 +18,11 @@
             <i class="fa-solid fa-user"></i>
           </div>
           <h3 class="app-title">ChatApp</h3>
-          <span class="menu-label" onclick="logout()" style="cursor: pointer">
-            <i class="fa-solid fa-right-from-bracket"></i>
-          </span>
+          <div class="header-btns">
+            <span class="logout-btn-wrapper" onclick="logout()" title="Logout">
+              <i class="fa-solid fa-right-from-bracket"></i>
+            </span>
+          </div>
         </header>
 
         <div class="search-section">
@@ -29,29 +31,31 @@
             <input
               type="text"
               id="searchEmail"
-              placeholder="Search by name or email..."
+              placeholder="Search name or email..."
+              onkeyup="filterSidebar()"
             />
           </div>
         </div>
 
         <div class="chat-list" id="chatList">
-          <div
-            class="chat-item active"
-            id="globalChatItem"
-            onclick="switchToGlobal()"
-          >
-            <div class="profile-circle global-icon">
-              <i class="fa-solid fa-earth-americas"></i>
+          <div class="section-container">
+            <div class="section-header">
+              <h4>Groups</h4>
+              <button class="add-group-inline" onclick="openGroupModal()">
+                <i class="fa-solid fa-plus"></i> Create
+              </button>
             </div>
-            <div class="chat-meta">
-              <div class="chat-name">
-                <strong>Global Group</strong>
-              </div>
-              <p>Public Community Chat</p>
-            </div>
+            <div id="availableGroups"></div>
           </div>
 
-          <div id="availableUsers"></div>
+          <hr class="divider" />
+
+          <div class="section-container">
+            <div class="section-header">
+              <h4>Direct Messages</h4>
+            </div>
+            <div id="availableUsers"></div>
+          </div>
         </div>
       </aside>
 
@@ -59,11 +63,11 @@
         <header class="bar-header">
           <div class="current-user">
             <div class="profile-circle small" id="headerIcon">
-              <i class="fa-solid fa-hashtag"></i>
+              <i class="fa-solid fa-comment-dots"></i>
             </div>
-            <div>
-              <strong id="chatHeader">Global Group</strong>
-              <p class="status" id="chatStatus">online</p>
+            <div class="header-info">
+              <strong id="chatHeader">Select a Chat</strong>
+              <p class="status" id="chatStatus">to start messaging</p>
             </div>
           </div>
           <div class="header-actions">
@@ -73,29 +77,99 @@
           </div>
         </header>
 
-        <section class="message-container" id="chatBox"></section>
-
-        <footer class="input-container">
-          <div class="input-wrapper">
-            <i class="fa-solid fa-paperclip action-icon"></i>
-            <input type="text" placeholder="Type a message..." id="msgInput" />
-            <i class="fa-solid fa-face-smile action-icon"></i>
+        <div id="welcomeScreen" class="welcome-container">
+          <div class="welcome-content">
+            <img
+              src="https://upload.wikimedia.org/wikipedia/commons/6/6b/WhatsApp.svg"
+              alt="Logo"
+              width="80"
+            />
+            <h2>ChatApp Pro for Web</h2>
+            <p>
+              Send and receive messages without keeping your phone online.<br />
+              Use ChatApp on up to 4 linked devices and 1 phone at the same
+              time.
+            </p>
+            <div class="encryption-note">
+              <i class="fa-solid fa-lock"></i> End-to-end encrypted
+            </div>
           </div>
-          <button class="send-btn" onclick="sendMessage(event)">
-            <i class="fa-solid fa-paper-plane"></i>
-          </button>
-        </footer>
+        </div>
+
+        <div
+          id="chatContent"
+          style="
+            display: none;
+            flex-direction: column;
+            flex: 1;
+            overflow: hidden;
+          "
+        >
+          <section class="message-container" id="chatBox"></section>
+
+          <footer class="input-container">
+            <form
+              id="messageForm"
+              onsubmit="sendMessage(event)"
+              style="display: flex; width: 100%; gap: 10px"
+            >
+              <div class="input-wrapper">
+                <i class="fa-solid fa-paperclip action-icon"></i>
+                <input
+                  type="text"
+                  placeholder="Type a message..."
+                  id="msgInput"
+                  autocomplete="off"
+                />
+                <i class="fa-solid fa-face-smile action-icon"></i>
+              </div>
+              <button type="submit" class="send-btn">
+                <i class="fa-solid fa-paper-plane"></i>
+              </button>
+            </form>
+          </footer>
+        </div>
       </main>
+    </div>
+
+    <div id="groupModal" class="modal-overlay">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h3>Create New Group</h3>
+          <span class="close-btn" onclick="closeGroupModal()">&times;</span>
+        </div>
+        <div class="modal-body">
+          <div class="form-group" style="margin-bottom: 15px">
+            <label style="display: block; margin-bottom: 5px">Group Name</label>
+            <input
+              type="text"
+              id="groupNameInput"
+              placeholder="Enter group name..."
+            />
+          </div>
+          <p class="select-label">Select Members:</p>
+          <div id="modalUserList" class="modal-user-list"></div>
+        </div>
+        <div class="modal-footer">
+          <button class="cancel-btn" onclick="closeGroupModal()">Cancel</button>
+          <button class="confirm-btn" onclick="createNewGroup()">
+            Create Group
+          </button>
+        </div>
+      </div>
     </div>
 
     <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
     <script src="http://localhost:3000/socket.io/socket.io.js"></script>
-    <script src="chat.js"></script>
+
+    <script type="module" src="./js/main.js"></script>
 
     <script>
       function logout() {
-        localStorage.clear();
-        window.location.href = "login.html";
+        if (confirm("Are you sure you want to logout?")) {
+          localStorage.clear();
+          window.location.href = "../signin/signin.html";
+        }
       }
     </script>
   </body>

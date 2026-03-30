@@ -1,30 +1,29 @@
 const User = require("./userModel");
 const Message = require("./chatModel");
+const Group = require("./groupModel");
+const GroupMember = require("./groupMemberModel");
 
-// --- 1. SENDER RELATIONSHIP ---
-// A User can send many messages
-User.hasMany(Message, {
+// --- 1. Private Messaging ---
+User.hasMany(Message, { foreignKey: "dbUserId", onDelete: "CASCADE" });
+Message.belongsTo(User, { foreignKey: "dbUserId" });
+
+User.hasMany(Message, { foreignKey: "recipientId", as: "receivedMessages" });
+Message.belongsTo(User, { foreignKey: "recipientId", as: "recipient" });
+
+// --- 2. Group Messaging (Many-to-Many) ---
+// We MUST specify the foreignKey and otherKey to match dbUserId and dbGroupId
+User.belongsToMany(Group, {
+  through: GroupMember,
   foreignKey: "dbUserId",
-  onDelete: "CASCADE",
 });
 
-// A Message belongs to a Sender (User)
-Message.belongsTo(User, {
-  foreignKey: "dbUserId",
+Group.belongsToMany(User, {
+  through: GroupMember,
+  foreignKey: "dbGroupId",
 });
 
-// --- 2. RECIPIENT RELATIONSHIP (For Private Chat) ---
-// A User can also be the recipient of many messages
-User.hasMany(Message, {
-  foreignKey: "recipientId",
-  as: "receivedMessages", // We use an alias to distinguish from sent messages
-  onDelete: "CASCADE",
-});
+// --- 3. Message to Group Relationship ---
+Group.hasMany(Message, { foreignKey: "groupId" });
+Message.belongsTo(Group, { foreignKey: "groupId" });
 
-// A Message belongs to a Recipient (User)
-Message.belongsTo(User, {
-  foreignKey: "recipientId",
-  as: "recipient", // Alias used for including recipient data in queries
-});
-
-module.exports = { User, Message };
+module.exports = { User, Message, Group, GroupMember };

@@ -1,27 +1,32 @@
-const Message = require("../../models/chatModel");
+const { Message } = require("../../models/associations");
 
 module.exports = (io, socket) => {
-  // Listen for the public "sendMessage" event
+  // Logic for Group/Global messages
   socket.on("sendMessage", async (data) => {
     try {
-      // 1. Save to Database with recipientId as NULL (Global)
-      const savedMessage = await Message.create({
+      const senderId = socket.user.userId || socket.user.id;
+
+      // 1. SAVE TO DB
+      const savedMsg = await Message.create({
         content: data.content,
-        dbUserId: socket.user.userId,
-        recipientId: null, // Explicitly null for group chat
+        dbUserId: senderId,
+        groupId: data.groupId || null, // If null, it's Global
+        recipientId: null, // Not used for group chats
       });
 
-      // 2. Broadcast to EVERYONE connected
-      io.emit("receiveMessage", {
-        id: savedMessage.id,
-        content: savedMessage.content,
-        dbUserId: socket.user.userId,
-        createdAt: savedMessage.createdAt,
-        db_user: { name: socket.user.name }, // Pass name for the UI
+      // 2. EMIT TO ROOM
+      io.to(data.room).emit("receive_message", {
+        content: data.content,
+        senderId: senderId,
+        senderName: socket.user.name,
+        room: data.room,
       });
-    } catch (error) {
-      console.error("Global Chat Error:", error);
-      socket.emit("error_message", "Could not send global message");
+    } catch (err) {
+      console.error("Group Chat Error:", err);
     }
+  });
+
+  socket.on("join_room", (data) => {
+    socket.join(data.room);
   });
 };

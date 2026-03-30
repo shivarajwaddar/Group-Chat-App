@@ -9,18 +9,17 @@
 body,
 html {
   height: 100%;
-  background-color: #f0f2f5; /* Light grey background */
+  background-color: #f0f2f5;
+  overflow: hidden;
 }
 
-/* --- 2. LAYOUT CONTAINER --- */
+/* --- 2. LAYOUT --- */
 .app-container {
   display: flex;
   height: 100vh;
   width: 100vw;
-  overflow: hidden;
 }
 
-/* --- 3. SIDEBAR STYLES --- */
 .sidebar {
   width: 350px;
   background: #ffffff;
@@ -36,44 +35,28 @@ html {
   align-items: center;
   justify-content: space-between;
   padding: 0 15px;
-  color: #54656f;
 }
 
-.profile-circle {
-  width: 40px;
-  height: 40px;
-  background: #d9dbdf;
-  border-radius: 50%;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-size: 20px;
+.app-title {
+  flex: 1;
+  margin-left: 10px;
+  color: #111b21;
+  font-size: 18px;
 }
 
-.profile-circle.small {
-  width: 35px;
-  height: 35px;
-}
-
-/* --- 4. SEARCH BOX --- */
+/* --- 3. SEARCH BOX --- */
 .search-section {
   padding: 10px;
   background: #fff;
 }
-
 .search-wrapper {
   background: #f0f2f5;
   display: flex;
   align-items: center;
   padding: 8px 15px;
   border-radius: 8px;
-  gap: 15px;
+  gap: 12px;
 }
-
-.search-wrapper i {
-  color: #8696a0;
-}
-
 .search-wrapper input {
   border: none;
   background: transparent;
@@ -82,10 +65,43 @@ html {
   font-size: 14px;
 }
 
-/* --- 5. CHAT LIST (Scrollable) --- */
+/* --- 4. CHAT LISTS & HEADERS --- */
 .chat-list {
   flex: 1;
   overflow-y: auto;
+  scroll-behavior: smooth;
+}
+
+.section-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 15px 15px 5px 15px;
+  background: #fff;
+}
+
+.section-header h4 {
+  font-size: 13px;
+  color: #00a884;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.add-group-inline {
+  background: #00a884;
+  color: white;
+  border: none;
+  padding: 4px 12px;
+  border-radius: 20px;
+  font-size: 11px;
+  font-weight: bold;
+  cursor: pointer;
+  transition: 0.2s;
+}
+
+.add-group-inline:hover {
+  background: #064a42;
+  transform: scale(1.05);
 }
 
 .chat-item {
@@ -96,25 +112,20 @@ html {
   transition: background 0.2s;
   border-bottom: 1px solid #f5f5f5;
 }
-
 .chat-item:hover {
   background: #f5f6f6;
 }
-
 .chat-item.active {
   background: #ebebeb;
 }
-
 .chat-meta {
   margin-left: 15px;
   overflow: hidden;
 }
-
 .chat-name strong {
   font-size: 16px;
   color: #111b21;
 }
-
 .chat-meta p {
   font-size: 13px;
   color: #667781;
@@ -123,33 +134,15 @@ html {
   text-overflow: ellipsis;
 }
 
-/* --- 6. MAIN CHAT WINDOW --- */
+/* --- 5. CHAT WINDOW --- */
 .chat-window {
   flex: 1;
   display: flex;
   flex-direction: column;
-  background-image: url("https://user-images.githubusercontent.com/15075759/28719144-86dc0f70-73b1-11e7-911d-60d70fcded21.png"); /* WhatsApp Wallpaper */
   background-color: #e5ddd5;
+  background-image: url("https://user-images.githubusercontent.com/15075759/28719144-86dc0f70-73b1-11e7-911d-60d70fcded21.png");
 }
 
-.current-user {
-  display: flex;
-  align-items: center;
-  gap: 12px;
-}
-
-.status {
-  font-size: 12px;
-  color: #667781;
-}
-
-.header-actions i {
-  margin-left: 20px;
-  cursor: pointer;
-  color: #54656f;
-}
-
-/* --- 7. MESSAGE BUBBLES --- */
 .message-container {
   flex: 1;
   padding: 20px 7%;
@@ -157,30 +150,36 @@ html {
   display: flex;
   flex-direction: column;
   gap: 10px;
+  scroll-behavior: smooth;
 }
 
+/* Placeholder text when chat is empty */
+#chatBox:empty::after {
+  content: "👋 Select a chat to start messaging!";
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 100%;
+  color: #667781;
+  font-size: 16px;
+}
+
+/* Bubbles */
 .msg {
   max-width: 60%;
   padding: 8px 12px;
   border-radius: 8px;
   font-size: 14.5px;
-  position: relative;
   box-shadow: 0 1px 0.5px rgba(0, 0, 0, 0.13);
-  line-height: 1.4;
 }
-
 .msg.received {
   align-self: flex-start;
   background: #ffffff;
-  color: #111b21;
 }
-
 .msg.sent {
   align-self: flex-end;
   background: #dcf8c6;
-  color: #111b21;
 }
-
 .user-name {
   font-size: 11px;
   font-weight: bold;
@@ -188,23 +187,11 @@ html {
   margin-bottom: 3px;
 }
 
-.time {
-  display: block;
-  font-size: 10px;
-  text-align: right;
-  color: #667781;
-  margin-top: 4px;
-}
-
-/* --- 8. INPUT AREA --- */
+/* --- 6. INPUT AREA --- */
 .input-container {
   background: #ededed;
   padding: 10px 15px;
-  display: flex;
-  align-items: center;
-  gap: 10px;
 }
-
 .input-wrapper {
   flex: 1;
   background: #fff;
@@ -214,20 +201,12 @@ html {
   align-items: center;
   gap: 15px;
 }
-
 .input-wrapper input {
   flex: 1;
   border: none;
   outline: none;
   font-size: 15px;
 }
-
-.action-icon {
-  color: #54656f;
-  font-size: 20px;
-  cursor: pointer;
-}
-
 .send-btn {
   border: none;
   background: transparent;
@@ -235,15 +214,185 @@ html {
   color: #54656f;
   cursor: pointer;
 }
-
 .send-btn:hover {
   color: #00a884;
 }
 
-/* Scrollbar Styling */
-::-webkit-scrollbar {
-  width: 6px;
+/* --- 7. MODALS --- */
+.modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0, 0, 0, 0.5);
+  display: none;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
 }
-::-webkit-scrollbar-thumb {
-  background: #c1c1c1;
+.modal-content {
+  background: white;
+  padding: 20px;
+  border-radius: 12px;
+  width: 400px;
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+}
+.modal-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  border-bottom: 1px solid #eee;
+  padding-bottom: 10px;
+}
+.modal-user-list {
+  max-height: 200px;
+  overflow-y: auto;
+  margin: 15px 0;
+  border: 1px solid #eee;
+  padding: 10px;
+}
+#groupNameInput {
+  width: 100%;
+  padding: 10px;
+  border: 1px solid #ddd;
+  border-radius: 5px;
+  outline-color: #00a884;
+}
+.modal-footer {
+  display: flex;
+  justify-content: flex-end;
+  gap: 10px;
+  margin-top: 15px;
+}
+.confirm-btn {
+  background: #075e54;
+  color: white;
+  border: none;
+  padding: 10px 15px;
+  border-radius: 5px;
+  cursor: pointer;
+}
+.cancel-btn {
+  background: #f0f2f5;
+  border: none;
+  padding: 10px 15px;
+  border-radius: 5px;
+  cursor: pointer;
+  color: #54656f;
+}
+.close-btn {
+  font-size: 24px;
+  color: #8696a0;
+  cursor: pointer;
+}
+
+/* Icons */
+.profile-circle {
+  width: 40px;
+  height: 40px;
+  background: #d9dbdf;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 20px;
+}
+.profile-circle.small {
+  width: 35px;
+  height: 35px;
+  font-size: 16px;
+}
+.logout-btn-wrapper {
+  cursor: pointer;
+  color: #ea4335;
+  padding: 5px;
+  transition: transform 0.2s;
+}
+.logout-btn-wrapper:hover {
+  transform: scale(1.1);
+}
+.divider {
+  border: 0.5px solid #eee;
+  margin: 10px 0;
+}
+
+/* Fix for Header Info Alignment */
+.current-user {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.header-info {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+}
+
+.header-info strong {
+  font-size: 16px;
+  line-height: 1.2;
+  color: #111b21;
+}
+
+.header-info .status {
+  font-size: 12px;
+  margin-top: 2px;
+}
+
+/* Fix for Right Side Icons (Phone/Video) */
+.header-actions {
+  display: flex;
+  align-items: center;
+  gap: 20px; /* Space between icons */
+}
+
+.header-actions i {
+  font-size: 18px;
+  color: #54656f;
+  cursor: pointer;
+  margin: 0; /* Reset previous margins */
+}
+
+/* Sidebar Fix: Remove the "Direct Messages" duplicate text */
+/* Make sure your JS fetchUsers() doesn't add another <h4> */
+#availableUsers h4 {
+  display: none;
+}
+
+/* --- WELCOME SCREEN STYLES --- */
+.welcome-container {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  background-color: #f8f9fa; /* Light grey background like WhatsApp */
+  border-bottom: 6px solid #25d366; /* Green bottom accent */
+}
+
+.welcome-content h2 {
+  font-weight: 300;
+  color: #41525d;
+  margin: 20px 0 10px 0;
+}
+
+.welcome-content p {
+  color: #667781;
+  font-size: 14px;
+  line-height: 20px;
+}
+
+.encryption-note {
+  margin-top: 100px;
+  font-size: 13px;
+  color: #8696a0;
+}
+
+/* Fix Header Info Spacing */
+.header-info {
+  display: flex;
+  flex-direction: column;
+  margin-left: 10px;
 }

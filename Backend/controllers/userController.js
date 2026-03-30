@@ -16,9 +16,13 @@ const signin = async (req, res) => {
       return res.status(401).json({ message: "Invalid password" });
 
     const token = jwt.sign(
-      { userId: foundUser.id, name: foundUser.name, email: foundUser.email },
+      {
+        userId: foundUser.id,
+        name: foundUser.name,
+        email: foundUser.email,
+      },
       process.env.JWT_SECRET,
-      { expiresIn: "24h" },
+      { expiresIn: "1h" }, // Changed from "24h" to "5m"
     );
 
     res.status(200).json({
