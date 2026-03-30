@@ -1,5 +1,6 @@
+// backend/index.js
 const { Server } = require("socket.io");
-const authMiddleware = require("./middleware.js"); // Your Socket JWT check
+const authMiddleware = require("./middleware.js");
 const registerChatHandlers = require("./handlers/chat.js");
 const registerPersonalChatHandlers = require("./handlers/personalChat.js");
 
@@ -11,7 +12,12 @@ const initSocket = (server) => {
   io.use(authMiddleware);
 
   io.on("connection", (socket) => {
-    console.log("Connected:", socket.user.name);
+    // Get ID from the middleware-authenticated user
+    const userId = socket.user.id || socket.user.userId;
+    console.log("Connected:", socket.user.name, "ID:", userId);
+
+    // CRITICAL FIX: Every user joins their own private "mailbox" room
+    socket.join(`user_${userId}`);
 
     registerChatHandlers(io, socket);
     registerPersonalChatHandlers(io, socket);

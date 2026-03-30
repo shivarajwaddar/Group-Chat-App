@@ -87,8 +87,7 @@
             <h2>ChatApp Pro for Web</h2>
             <p>
               Send and receive messages without keeping your phone online.<br />
-              Use ChatApp on up to 4 linked devices and 1 phone at the same
-              time.
+              Use ChatApp on up to 4 linked devices.
             </p>
             <div class="encryption-note">
               <i class="fa-solid fa-lock"></i> End-to-end encrypted
@@ -110,11 +109,21 @@
           <footer class="input-container">
             <form
               id="messageForm"
-              onsubmit="sendMessage(event)"
               style="display: flex; width: 100%; gap: 10px"
             >
               <div class="input-wrapper">
-                <i class="fa-solid fa-paperclip action-icon"></i>
+                <i
+                  class="fa-solid fa-paperclip action-icon"
+                  id="attachBtn"
+                  style="cursor: pointer"
+                ></i>
+                <input
+                  type="file"
+                  id="fileInput"
+                  style="display: none"
+                  accept="image/*"
+                />
+
                 <input
                   type="text"
                   placeholder="Type a message..."
@@ -161,7 +170,6 @@
 
     <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
     <script src="http://localhost:3000/socket.io/socket.io.js"></script>
-
     <script type="module" src="./js/main.js"></script>
 
     <script>

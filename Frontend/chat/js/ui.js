@@ -9,6 +9,7 @@ export const elements = {
   chatStatus: document.getElementById("chatStatus"),
   headerIcon: document.getElementById("headerIcon"),
   msgInput: document.getElementById("msgInput"),
+  fileInput: document.getElementById("fileInput"), // Added for S3
   availableUsers: document.getElementById("availableUsers"),
   availableGroups: document.getElementById("availableGroups"),
 };
@@ -28,16 +29,28 @@ export function appendMessageToUI(msg, type, currentUserId) {
   const msgDiv = document.createElement("div");
   msgDiv.className = `msg ${type}`;
 
-  const content = msg.content || msg.message;
+  const content = msg.content || msg.message || "";
+
+  // LOGIC: Check if the content is an image URL from S3
+  const isImage =
+    content.includes("amazonaws.com") ||
+    /\.(jpg|jpeg|png|gif|webp)$/i.test(content);
+
   let name =
     type === "sent"
       ? "You"
       : msg.db_user?.name || msg.User?.name || msg.senderName || "User";
 
+  // If it's an image, create an img tag. Otherwise, create a text div.
+  const contentHTML = isImage
+    ? `<img src="${content}" class="chat-img-bubble" alt="Sent Image" onclick="window.open('${content}', '_blank')">`
+    : `<div class="message-text">${content}</div>`;
+
   msgDiv.innerHTML = `
         <div class="user-name">${name}</div>
-        <div class="message-text">${content}</div>
+        ${contentHTML}
     `;
+
   elements.chatBox.appendChild(msgDiv);
   elements.chatBox.scrollTop = elements.chatBox.scrollHeight;
 }
@@ -47,4 +60,11 @@ export function updateActiveUI(element) {
     .querySelectorAll(".chat-item")
     .forEach((item) => item.classList.remove("active"));
   if (element) element.classList.add("active");
+}
+
+/**
+ * NEW: Clears the chat box when switching between users/groups
+ */
+export function clearChatBox() {
+  elements.chatBox.innerHTML = "";
 }

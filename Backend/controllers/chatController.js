@@ -1,5 +1,6 @@
 const { Message, User } = require("../models/associations");
 const { Op } = require("sequelize");
+const S3Service = require("../services/S3services"); // Your S3 logic
 
 // --- 1. GET GLOBAL HISTORY ---
 const getMessages = async (req, res) => {
@@ -7,7 +8,7 @@ const getMessages = async (req, res) => {
     const messages = await Message.findAll({
       where: {
         recipientId: null,
-        groupId: null, // Ensure we don't fetch group chat messages here
+        groupId: null,
       },
       include: [{ model: User, attributes: ["name"] }],
       order: [["createdAt", "ASC"]],
@@ -18,20 +19,30 @@ const getMessages = async (req, res) => {
   }
 };
 
-// --- 2. SAVE NEW GLOBAL MESSAGE (HTTP Fallback) ---
+// --- 2. SAVE NEW MESSAGE (Enhanced for S3 & Multi-type) ---
 const addMessage = async (req, res) => {
   try {
-    const { content } = req.body;
-    // FIX: Changed req.user.id to req.user.userId
+    const { content, groupId, recipientId } = req.body;
+    const file = req.file; // From multer middleware
     const userId = req.user.userId || req.user.id;
 
+    let finalContent = content;
+
+    // Logic: If a file exists, upload to S3 and overwrite finalContent with the URL
+    if (file) {
+      const filename = `ChatApp/User_${userId}/${Date.now()}_${file.originalname}`;
+      finalContent = await S3Service.uploadToS3(file.buffer, filename);
+    }
+
+    // Create the message in DB
     const newMessage = await Message.create({
-      content: content,
+      content: finalContent,
       dbUserId: userId,
-      recipientId: null,
-      groupId: null,
+      recipientId: recipientId || null, // Dynamic: works for private
+      groupId: groupId || null, // Dynamic: works for groups
     });
 
+    // Fetch the message with User name to send back to UI/Socket
     const messageWithUser = await Message.findOne({
       where: { id: newMessage.id },
       include: [{ model: User, attributes: ["name"] }],
@@ -39,6 +50,7 @@ const addMessage = async (req, res) => {
 
     res.status(201).json({ success: true, data: messageWithUser });
   } catch (err) {
+    console.error("ADD MESSAGE ERROR:", err);
     res.status(500).json({ error: "Internal Server Error" });
   }
 };
@@ -47,7 +59,6 @@ const addMessage = async (req, res) => {
 const getPrivateMessages = async (req, res) => {
   try {
     const recipientId = Number(req.params.recipientId);
-    // FIX: Changed req.user.id to req.user.userId
     const myId = Number(req.user.userId || req.user.id);
 
     const messages = await Message.findAll({
@@ -67,20 +78,15 @@ const getPrivateMessages = async (req, res) => {
   }
 };
 
-// --- NEW: 4. GET GROUP HISTORY ---
+// --- 4. GET GROUP HISTORY ---
 const getGroupMessages = async (req, res) => {
   try {
     const { groupId } = req.params;
 
     const messages = await Message.findAll({
       where: { groupId: groupId },
-      include: [
-        {
-          model: User,
-          attributes: ["name"], // This allows the UI to show who sent the message
-        },
-      ],
-      order: [["createdAt", "ASC"]], // Keep messages in chronological order
+      include: [{ model: User, attributes: ["name"] }],
+      order: [["createdAt", "ASC"]],
     });
 
     res.status(200).json({ success: true, data: messages });
@@ -94,5 +100,5 @@ module.exports = {
   getMessages,
   addMessage,
   getPrivateMessages,
-  getGroupMessages, // Export this for your Group Chat history!
+  getGroupMessages,
 };

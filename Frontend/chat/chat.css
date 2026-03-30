@@ -396,3 +396,63 @@ html {
   flex-direction: column;
   margin-left: 10px;
 }
+
+/* Container for the image inside the msg bubble */
+.chat-img-bubble {
+  max-width: 280px;
+  max-height: 280px;
+  border-radius: 12px;
+  margin-top: 8px;
+  cursor: pointer;
+  border: 1px solid rgba(0, 0, 0, 0.1);
+  display: block;
+  object-fit: cover;
+  transition: transform 0.2s ease-in-out;
+}
+
+.chat-img-bubble:hover {
+  transform: scale(1.02);
+  filter: brightness(0.9);
+}
+
+/* Optional: Add a subtle loading animation for uploads */
+.uploading {
+  opacity: 0.5;
+  pointer-events: none;
+}
+
+/* Styling for the S3 images in the chat */
+.chat-img-bubble {
+  max-width: 250px;
+  max-height: 300px;
+  border-radius: 12px;
+  margin-top: 5px;
+  cursor: pointer;
+  border: 1px solid #ddd;
+  display: block; /* Ensures it takes up space */
+  object-fit: cover;
+  transition: transform 0.2s;
+}
+
+.chat-img-bubble:hover {
+  transform: scale(1.02);
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+}
+
+/* Ensure the message container doesn't squash the image */
+.msg {
+  display: flex;
+  flex-direction: column;
+  margin-bottom: 15px;
+  max-width: 70%;
+}
+
+.msg.sent {
+  align-self: flex-end;
+  align-items: flex-end;
+}
+
+.msg.received {
+  align-self: flex-start;
+  align-items: flex-start;
+}

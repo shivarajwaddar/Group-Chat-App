@@ -1,28 +1,24 @@
-const { Message } = require("../../models/associations");
-
+// backend/handlers/personalChat.js
 module.exports = (io, socket) => {
-  // Logic for Private messages
-  socket.on("sendPersonalMessage", async (data) => {
+  socket.on("sendPersonalMessage", (data) => {
     try {
-      const senderId = socket.user.userId || socket.user.id;
+      const senderId = socket.user.id || socket.user.userId;
+      const recipientId = data.recipientId;
 
-      // 1. SAVE TO DB
-      const savedMsg = await Message.create({
-        content: data.content,
-        dbUserId: senderId,
-        recipientId: data.recipientId, // CRITICAL: This was NULL before
-        groupId: null,
-      });
+      if (!recipientId) return console.error("No recipientId provided");
 
-      // 2. EMIT TO PRIVATE ROOM
-      io.to(data.room).emit("receive_message", {
-        content: data.content,
+      // Send the message to the recipient's private room
+      socket.to(`user_${recipientId}`).emit("receive_message", {
+        ...data,
         senderId: senderId,
         senderName: socket.user.name,
-        room: data.room,
+        // We tell the receiver's UI: "This belongs to the chat with ME"
+        room: `personal_${senderId}`,
       });
+
+      console.log(`Msg from ${senderId} sent to user_${recipientId}`);
     } catch (err) {
-      console.error("Personal Chat Error:", err);
+      console.error("Personal Chat Socket Error:", err);
     }
   });
 };
