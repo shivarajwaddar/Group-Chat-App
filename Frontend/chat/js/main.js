@@ -1,11 +1,10 @@
 /**
- * main.js - The Controller
+ * main.js - The Central Controller
  */
 import * as api from "./api.js";
 import * as ui from "./ui.js";
 import { initSocket, setupSocketListeners } from "./socket.js";
 
-// --- 1. APPLICATION STATE ---
 const state = {
   token: localStorage.getItem("token"),
   currentUserId: localStorage.getItem("currentUserId"),
@@ -14,27 +13,19 @@ const state = {
   currentRecipientId: null,
 };
 
-// Initialize Socket connection
+let selectedUsers = [];
 const socket = initSocket(state.token);
 
-// --- 2. INITIALIZATION ---
+// --- INITIALIZATION ---
 window.addEventListener("DOMContentLoaded", () => {
-  // Auth Check
   if (!state.token) return (window.location.href = "../signin/signin.html");
 
-  // Load Sidebar (Users and Groups)
   loadSidebar();
-
-  // Attach Socket Listeners
   setupSocketListeners(socket, state, ui.appendMessageToUI);
 
-  // File Attachment UI
   const attachBtn = document.getElementById("attachBtn");
-  if (attachBtn) {
-    attachBtn.onclick = () => ui.elements.fileInput.click();
-  }
+  if (attachBtn) attachBtn.onclick = () => ui.elements.fileInput.click();
 
-  // Handle Form Submission
   const messageForm = document.getElementById("messageForm");
   if (messageForm) {
     messageForm.onsubmit = (e) => {
@@ -44,13 +35,17 @@ window.addEventListener("DOMContentLoaded", () => {
   }
 });
 
-// --- 3. SIDEBAR LOGIC ---
+// --- SIDEBAR LOADING ---
 async function loadSidebar() {
   try {
-    const users = await api.fetchUsers(state.token);
-    const groups = await api.fetchGroups(state.token);
+    const usersData = await api.fetchUsers(state.token);
+    const groupsData = await api.fetchGroups(state.token);
 
-    // Render Users
+    const users = Array.isArray(usersData) ? usersData : usersData.users || [];
+    const groups = Array.isArray(groupsData)
+      ? groupsData
+      : groupsData.groups || [];
+
     ui.elements.availableUsers.innerHTML = "";
     users.forEach((u) => {
       if (String(u.id) === String(state.currentUserId)) return;
@@ -59,7 +54,6 @@ async function loadSidebar() {
       ui.elements.availableUsers.appendChild(div);
     });
 
-    // Render Groups
     ui.elements.availableGroups.innerHTML = "";
     groups.forEach((g) => {
       const div = createChatItem(g.name, "Group Chat", "fa-users");
@@ -81,7 +75,7 @@ function createChatItem(name, subtext, icon) {
   return div;
 }
 
-// --- 4. MESSAGING LOGIC (S3 & SOCKET) ---
+// --- SEND MESSAGE ---
 async function handleSendMessage() {
   const text = ui.elements.msgInput.value.trim();
   const file = ui.elements.fileInput.files[0];
@@ -91,57 +85,47 @@ async function handleSendMessage() {
   const formData = new FormData();
   formData.append("content", text);
 
-  // Determine if Group or Private
-  if (state.currentRoomId && state.currentRoomId.startsWith("group_")) {
+  const isGroup =
+    state.currentRoomId && state.currentRoomId.startsWith("group_");
+  if (isGroup) {
     formData.append("groupId", state.currentRoomId.split("_")[1]);
   } else if (state.currentRecipientId) {
     formData.append("recipientId", state.currentRecipientId);
   }
 
-  if (file) {
-    formData.append("file", file);
-  }
+  if (file) formData.append("file", file);
 
   try {
-    // 1. Save to DB and Upload to S3 via API
     const response = await api.sendMessage(formData, state.token);
     const savedMsg = response.data.data;
-
-    // 2. Determine Socket Event
-    const isGroup = state.currentRoomId.startsWith("group_");
     const socketEvent = isGroup ? "sendMessage" : "sendPersonalMessage";
 
-    // 3. Single Emit via Socket (Includes everything backend needs)
-
     socket.emit(socketEvent, {
-      ...savedMsg, // Contains the S3 URL
+      ...savedMsg,
       room: state.currentRoomId,
       senderId: state.currentUserId,
-      recipientId: state.currentRecipientId, // CRITICAL: Used by personalChat.js
+      recipientId: state.currentRecipientId,
       groupId: isGroup ? state.currentRoomId.split("_")[1] : null,
     });
 
-    // 4. Manually Append for SENDER (Fast UI update)
     ui.appendMessageToUI(savedMsg, "sent", state.currentUserId);
-
-    // 5. Reset UI
     ui.elements.msgInput.value = "";
     ui.elements.fileInput.value = "";
     ui.elements.msgInput.placeholder = "Type a message...";
     ui.elements.msgInput.style.backgroundColor = "";
   } catch (err) {
-    console.error("Failed to send message:", err);
+    console.error("Send Error:", err);
   }
 }
 
-// --- 5. NAVIGATION (ROOM JOINING) ---
+// --- NAVIGATION ---
 window.joinGroupChat = async (id, name, element) => {
   ui.toggleChatScreen(true);
   ui.clearChatBox();
   state.currentRoomId = `group_${id}`;
   state.currentRecipientId = null;
-  ui.updateHeader(name, "Group Chat", "fa-users");
   ui.updateActiveUI(element);
+  ui.updateHeader(name, "Group Chat", "fa-users");
 
   socket.emit("join_room", { room: state.currentRoomId });
 
@@ -158,7 +142,7 @@ window.joinGroupChat = async (id, name, element) => {
       ui.appendMessageToUI(m, type, state.currentUserId);
     });
   } catch (err) {
-    console.error("Group History Load Error:", err);
+    console.error("History Error:", err);
   }
 };
 
@@ -186,11 +170,68 @@ window.joinPersonalRoom = async (email, name, id, element) => {
       ui.appendMessageToUI(m, type, state.currentUserId);
     });
   } catch (err) {
-    console.error("Private History Load Error:", err);
+    console.error("Private History Error:", err);
   }
 };
 
-// --- 6. UTILITIES ---
+// --- GROUP MODAL ---
+window.openGroupModal = async () => {
+  const modal = document.getElementById("groupModal");
+  const userListDiv = document.getElementById("modalUserList");
+  modal.style.display = "flex";
+  userListDiv.innerHTML = "Loading...";
+  selectedUsers = [];
+
+  try {
+    const data = await api.fetchUsers(state.token);
+    const users = Array.isArray(data) ? data : data.users || [];
+    userListDiv.innerHTML = "";
+
+    users.forEach((u) => {
+      if (String(u.id) === String(state.currentUserId)) return;
+      const div = document.createElement("div");
+      div.className = "user-select-item";
+      div.innerHTML = `
+          <input type="checkbox" id="user-${u.id}" value="${u.id}">
+          <label for="user-${u.id}">${u.name} (${u.email})</label>
+      `;
+      div.querySelector("input").onchange = (e) => {
+        const uid = parseInt(e.target.value);
+        if (e.target.checked) selectedUsers.push(uid);
+        else selectedUsers = selectedUsers.filter((id) => id !== uid);
+      };
+      userListDiv.appendChild(div);
+    });
+  } catch (err) {
+    userListDiv.innerHTML = "Error loading users.";
+  }
+};
+
+window.closeGroupModal = () =>
+  (document.getElementById("groupModal").style.display = "none");
+
+window.createNewGroup = async () => {
+  const name = document.getElementById("groupNameInput").value.trim();
+  if (!name || selectedUsers.length === 0)
+    return alert("Fill name and select members");
+
+  try {
+    await axios.post(
+      "http://localhost:3000/api/groups/create",
+      { name, members: selectedUsers },
+      {
+        headers: { Authorization: state.token },
+      },
+    );
+    alert("Group created!");
+    window.closeGroupModal();
+    loadSidebar();
+  } catch (err) {
+    alert("Failed to create group.");
+  }
+};
+
+// --- UTILS ---
 window.filterSidebar = () => {
   const query = document.getElementById("searchEmail").value.toLowerCase();
   document.querySelectorAll(".chat-item").forEach((item) => {
@@ -203,7 +244,7 @@ window.filterSidebar = () => {
 ui.elements.fileInput.onchange = () => {
   const file = ui.elements.fileInput.files[0];
   if (file) {
-    ui.elements.msgInput.placeholder = `Ready to send: ${file.name}`;
+    ui.elements.msgInput.placeholder = `📎 Selected: ${file.name}`;
     ui.elements.msgInput.style.backgroundColor = "#e7f3ff";
   }
 };

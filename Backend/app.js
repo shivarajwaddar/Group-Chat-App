@@ -33,13 +33,14 @@ initSocket(server);
 
 // Start Database and Server
 // Tip: Use { alter: true } only once if you need to add columns to existing tables
-db.sync({ alter: true }) // This drops all tables and recreates them perfectly
+// Change 'alter' to 'force' for a one-time total reset
+db.sync({ alter: true })
   .then(() => {
     server.listen(3000, () => {
-      console.log("Server running on port 3000 - Database Reset & Synced");
+      console.log("Starting Fresh");
     });
-  });
-
+  })
+  .catch((err) => console.log(err));
 // require("dotenv").config();
 // var cors = require("cors");
 // const express = require("express");

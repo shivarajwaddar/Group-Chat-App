@@ -456,3 +456,18 @@ html {
   align-self: flex-start;
   align-items: flex-start;
 }
+
+.chat-video-bubble {
+  max-width: 250px;
+  border-radius: 8px;
+}
+.file-download-bubble {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  background: #f1f1f1;
+  padding: 10px;
+  border-radius: 8px;
+  cursor: pointer;
+  color: #007bff;
+}

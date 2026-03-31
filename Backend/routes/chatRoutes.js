@@ -13,7 +13,7 @@ const router = express.Router();
 // 2. Configure Multer (Memory storage is best for immediate S3 upload)
 const upload = multer({
   storage: multer.memoryStorage(),
-  limits: { fileSize: 5 * 1024 * 1024 }, // Optional: 5MB limit
+  limits: { fileSize: 50 * 1024 * 1024 }, // Optional: 5MB limit
 });
 
 // 3. Update the "/send" route to accept a single file named 'file'
