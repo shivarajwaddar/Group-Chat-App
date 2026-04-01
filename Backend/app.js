@@ -2,12 +2,14 @@ require("dotenv").config();
 const express = require("express");
 const http = require("http");
 const cors = require("cors");
+const cron = require("node-cron"); // 1. Import node-cron
 const db = require("./utils/db-connection.js");
 
-// IMPORTANT: Import your associations here!
-// This ensures Sequelize "registers" the User and Message models
-// and their relationships before the .sync() command runs.
+// Import associations
 require("./models/associations.js");
+
+// Import the Archive Service
+const archiveService = require("./services/archiveService.js"); // 2. Import your service
 
 // Routes
 const userRouter = require("./routes/userRoutes.js");
@@ -31,13 +33,28 @@ app.use("/api/groups", groupRoutes);
 // Initialize WebSockets
 initSocket(server);
 
+// --- 3. CRON JOB SETUP ---
+// This runs every night at 00:00 (Midnight)
+// cron.schedule("0 0 * * *", async () => {
+//   console.log("CRON: Starting nightly chat archiving process...");
+//   try {
+//     await archiveService.archiveOldMessages();
+//     console.log("CRON: Archiving completed successfully.");
+//   } catch (err) {
+//     console.error("CRON: Archiving failed:", err);
+//   }
+// });
+
+cron.schedule("* * * * *", async () => {
+  console.log("Testing Archive Service...");
+  await archiveService.archiveOldMessages();
+});
+
 // Start Database and Server
-// Tip: Use { alter: true } only once if you need to add columns to existing tables
-// Change 'alter' to 'force' for a one-time total reset
 db.sync({ alter: true })
   .then(() => {
     server.listen(3000, () => {
-      console.log("Starting Fresh");
+      console.log("Server running on port 3000 - Background Jobs Active");
     });
   })
   .catch((err) => console.log(err));

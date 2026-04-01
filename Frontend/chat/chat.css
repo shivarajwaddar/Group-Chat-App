@@ -471,3 +471,23 @@ html {
   cursor: pointer;
   color: #007bff;
 }
+
+/* --- 8. MESSAGE TIMING --- */
+.msg-time {
+  font-size: 10px;
+  color: #667781; /* WhatsApp grey */
+  margin-top: 4px;
+  align-self: flex-end; /* Pushes time to the right corner */
+  text-transform: uppercase;
+  display: block;
+}
+
+/* On sent messages, make the time slightly darker for better contrast on green */
+.msg.sent .msg-time {
+  color: #54656f;
+}
+
+/* Ensure the message bubble has enough width to fit both text and time */
+.msg {
+  min-width: 80px;
+}

@@ -1,48 +1,56 @@
-const { Message, User } = require("../models/associations");
+// Add ArchivedChat to your imports
+const { Message, User, ArchivedChat } = require("../models/associations");
 const { Op } = require("sequelize");
-const S3Service = require("../services/S3services"); // Your S3 logic
+const S3Service = require("../services/S3services");
 
-// --- 1. GET GLOBAL HISTORY ---
+// --- 1. GET GLOBAL HISTORY (Updated) ---
 const getMessages = async (req, res) => {
   try {
-    const messages = await Message.findAll({
-      where: {
-        recipientId: null,
-        groupId: null,
-      },
-      include: [{ model: User, attributes: ["name"] }],
-      order: [["createdAt", "ASC"]],
-    });
-    res.status(200).json({ success: true, data: messages });
+    const whereClause = { recipientId: null, groupId: null };
+
+    // Fetch from both tables
+    const [liveMsgs, archivedMsgs] = await Promise.all([
+      Message.findAll({
+        where: whereClause,
+        include: [{ model: User, attributes: ["name"] }],
+      }),
+      ArchivedChat.findAll({
+        where: whereClause,
+        include: [{ model: User, attributes: ["name"] }],
+      }),
+    ]);
+
+    // Combine and sort by createdAt
+    const allMessages = [...archivedMsgs, ...liveMsgs].sort(
+      (a, b) => a.createdAt - b.createdAt,
+    );
+
+    res.status(200).json({ success: true, data: allMessages });
   } catch (err) {
     res.status(500).json({ error: "Global fetch failed" });
   }
 };
 
-// --- 2. SAVE NEW MESSAGE (Enhanced for S3 & Multi-type) ---
+// --- 2. SAVE NEW MESSAGE (Remains the same - only saves to 'Message' table) ---
 const addMessage = async (req, res) => {
   try {
     const { content, groupId, recipientId } = req.body;
-    const file = req.file; // From multer middleware
+    const file = req.file;
     const userId = req.user.userId || req.user.id;
 
     let finalContent = content;
-
-    // Logic: If a file exists, upload to S3 and overwrite finalContent with the URL
     if (file) {
       const filename = `ChatApp/User_${userId}/${Date.now()}_${file.originalname}`;
       finalContent = await S3Service.uploadToS3(file.buffer, filename);
     }
 
-    // Create the message in DB
     const newMessage = await Message.create({
       content: finalContent,
       dbUserId: userId,
-      recipientId: recipientId || null, // Dynamic: works for private
-      groupId: groupId || null, // Dynamic: works for groups
+      recipientId: recipientId || null,
+      groupId: groupId || null,
     });
 
-    // Fetch the message with User name to send back to UI/Socket
     const messageWithUser = await Message.findOne({
       where: { id: newMessage.id },
       include: [{ model: User, attributes: ["name"] }],
@@ -55,41 +63,62 @@ const addMessage = async (req, res) => {
   }
 };
 
-// --- 3. GET PRIVATE HISTORY ---
+// --- 3. GET PRIVATE HISTORY (Updated) ---
 const getPrivateMessages = async (req, res) => {
   try {
     const recipientId = Number(req.params.recipientId);
     const myId = Number(req.user.userId || req.user.id);
 
-    const messages = await Message.findAll({
-      where: {
-        [Op.or]: [
-          { dbUserId: myId, recipientId: recipientId },
-          { dbUserId: recipientId, recipientId: myId },
-        ],
-      },
-      include: [{ model: User, attributes: ["name"] }],
-      order: [["createdAt", "ASC"]],
-    });
+    const whereClause = {
+      [Op.or]: [
+        { dbUserId: myId, recipientId: recipientId },
+        { dbUserId: recipientId, recipientId: myId },
+      ],
+    };
 
-    res.status(200).json({ success: true, data: messages });
+    const [liveMsgs, archivedMsgs] = await Promise.all([
+      Message.findAll({
+        where: whereClause,
+        include: [{ model: User, attributes: ["name"] }],
+      }),
+      ArchivedChat.findAll({
+        where: whereClause,
+        include: [{ model: User, attributes: ["name"] }],
+      }),
+    ]);
+
+    const allMessages = [...archivedMsgs, ...liveMsgs].sort(
+      (a, b) => a.createdAt - b.createdAt,
+    );
+
+    res.status(200).json({ success: true, data: allMessages });
   } catch (err) {
     res.status(500).json({ error: "Private fetch failed" });
   }
 };
 
-// --- 4. GET GROUP HISTORY ---
+// --- 4. GET GROUP HISTORY (Updated) ---
 const getGroupMessages = async (req, res) => {
   try {
     const { groupId } = req.params;
+    const whereClause = { groupId: groupId };
 
-    const messages = await Message.findAll({
-      where: { groupId: groupId },
-      include: [{ model: User, attributes: ["name"] }],
-      order: [["createdAt", "ASC"]],
-    });
+    const [liveMsgs, archivedMsgs] = await Promise.all([
+      Message.findAll({
+        where: whereClause,
+        include: [{ model: User, attributes: ["name"] }],
+      }),
+      ArchivedChat.findAll({
+        where: whereClause,
+        include: [{ model: User, attributes: ["name"] }],
+      }),
+    ]);
 
-    res.status(200).json({ success: true, data: messages });
+    const allMessages = [...archivedMsgs, ...liveMsgs].sort(
+      (a, b) => a.createdAt - b.createdAt,
+    );
+
+    res.status(200).json({ success: true, data: allMessages });
   } catch (err) {
     console.error("GET GROUP MESSAGES ERROR:", err);
     res.status(500).json({ success: false, error: "Internal Server Error" });
